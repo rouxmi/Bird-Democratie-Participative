@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  background-color: red;
+}
+header {
+  background-color:pink;
+  margin: 0;
+}
+.navbar-custom{
+  background-color: sienna;
+}

@@ -16,4 +16,5 @@ def post():
      cursor = subs.cursor()
      cursor.execute("""
      INSERT INTO table1(Nom,Mots_clés) values(?,?)""",(str(form_data['name']),str(form_data['domaine'])))
+     subs.commit()
      return render_template('sub.html')

@@ -1,40 +1,37 @@
-<!doctype html>
-<html>
-<head>
-<title>SUB</title>
-</head>
-<body>
+{% extends 'layout.html' %}
 
-<h1>Nouveau Projet</h1>
-<form action="/post" method = "POST">
-<p>
-<label for='name'>Nom du projet:
-</label>
-<input type='text' name='name'
-required
-   minlength='1' maxlength='200'>
-</input>
-</p>
-<p>
-<label for='domaine'>Domaine du Projet:
-</label>
-<input type='text' name='domaine'
-required
-   minlength='1' maxlength='200'>
-</input>
-</p>
-<p>
-<label for='description'>Description du Projet:
-</label>
-<input type='text' name='description'
-required
-   minlength='1' maxlength='2000'>
-</input>
-</p>
-<p>
-<input type= "submit" value="Submit" >
-</input>
-</p> 
-</form>
-</html>
-
+{% block content %}
+   <div>
+   <h1>Nouveau Projet</h1>
+   <form action="/post" method = "POST">
+   <p>
+   <label for='name'>Nom du projet:
+   </label>
+   <input type='text' name='name'
+   required
+      minlength='1' maxlength='200'>
+   </input>
+   </p>
+   <p>
+   <label for='domaine'>Domaine du Projet:
+   </label>
+   <input type='text' name='domaine'
+   required
+      minlength='1' maxlength='200'>
+   </input>
+   </p>
+   <p>
+   <label for='description'>Description du Projet:
+   </label>
+   <input type='text' name='description'
+   required
+      minlength='1' maxlength='2000'>
+   </input>
+   </p>
+   <p>
+   <input type= "submit" value="Submit" >
+   </input>
+   </p> 
+   </form>
+   </div>
+{% endblock %}

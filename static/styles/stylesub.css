@@ -26,7 +26,12 @@ h1{
 }
 
 textarea{
-    text-align: bottom;
+    display: block;
     margin-right: auto;
     margin-left: auto;
+    width: 350px;
+    float: bottom;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border-width: 1px;
 }

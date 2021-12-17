@@ -61,8 +61,7 @@ def viewsub(id):
      subs = sqlite3.connect('sub.db')
      cursor = subs.cursor()
      query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
-     args=(id,)
-     cursor.execute(query,args)
+     cursor.execute(query,id)
      L=(cursor.fetchall(),id)
      subs.close()
      return render_template('viewsub.html',data=L)

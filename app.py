@@ -1,4 +1,5 @@
 import sqlite3
+from sqlite3.dbapi2 import Cursor
 from flask import Flask, render_template, request, url_for,redirect,flash
 import datetime
 
@@ -56,8 +57,26 @@ def search_results(search):
          return render_template('resultat.html', resultat=resultat)
 
 @app.route('/sub/<id>')
-def sub(id):
-     return render_template('accueil.html')
+def viewsub(id):
+     subs = sqlite3.connect('sub.db')
+     cursor = subs.cursor()
+     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
+     args=(id,)
+     cursor.execute(query,args)
+     L=(cursor.fetchall(),id)
+     subs.close()
+     return render_template('viewsub.html',data=L)
+
+@app.route('/sub/<id>/post')
+def viewpost(id):
+     subs = sqlite3.connect('sub.db')
+     cursor = subs.cursor()
+     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
+     args=(id,)
+     cursor.execute(query,args)
+     L=cursor.fetchall()
+     subs.close()
+     return render_template('viewpost.html',L)
 
 
 if __name__=='__main__':

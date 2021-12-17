@@ -13,6 +13,10 @@ def accueil():
 def form():
      return render_template('sub.html')
 
+@app.route('/parcourir')
+def parcourir():
+     return render_template('parcourir.html')
+
 @app.route('/post',methods=['post'])
 def post():
      form_data=request.form.to_dict()
@@ -71,11 +75,10 @@ def viewpost(id):
      subs = sqlite3.connect('sub.db')
      cursor = subs.cursor()
      query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
-     args=(id,)
-     cursor.execute(query,args)
+     cursor.execute(query,id)
      L=cursor.fetchall()
      subs.close()
-     return render_template('viewpost.html',L)
+     return render_template('viewpost.html', data=(L,id))
 
 
 if __name__=='__main__':

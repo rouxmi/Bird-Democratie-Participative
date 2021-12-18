@@ -81,5 +81,18 @@ def viewpost(id):
      return render_template('viewpost.html', data=(L,id))
 
 
+@app.route('/sub/<id>/creationpost')
+def newpost(id):
+     subs = sqlite3.connect('sub.db')
+     cursor = subs.cursor()
+     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
+     cursor.execute(query,id)
+     L=(cursor.fetchall(),id)
+     subs.close()
+     return render_template('newpost.html',data=L)
+
+
+
+
 if __name__=='__main__':
      app.run(debug=1)

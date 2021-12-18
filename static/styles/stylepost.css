@@ -1,0 +1,50 @@
+body {
+    text-align: center ;
+    background-color: rgb(73, 73, 73) ;
+}
+
+.box {
+    display: block;
+    width: 600px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 100px;
+    background-color: darkgrey;
+    border: 1rem solid #333333;
+}
+
+form {
+    display: inline-block;
+}
+input {
+ display: block;
+ width: 350px;
+ float: bottom;
+ margin-bottom: 10px;
+ border-radius: 3px;
+ border-width: 1px;
+}
+
+label {
+ text-align: left;
+ width: 350px;
+}
+
+h1{
+    text-align: center;
+    margin:10px;
+    padding:30px;
+
+
+}
+
+textarea{
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    width: 350px;
+    float: bottom;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border-width: 1px;
+}

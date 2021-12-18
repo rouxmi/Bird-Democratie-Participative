@@ -8,13 +8,10 @@
 {% block content %}
 <ul class="nav nav-tabs navbar-dark bg-dark">
     <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="#">Description</a>
+      <a class="nav-link" aria-current="page" href="#">Description</a>
     </li>
-    <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Posts</a>
-      <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <li><a class="dropdown-item" href="/sub/{{ data[1] }}/creationpost">Créer un post</a></li>
-      </ul>      
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="/sub/{{ data[1] }}/post">Posts</a>     
     </li>
     <li class="nav-item">
       <a class="nav-link disabled">calendrier</a>

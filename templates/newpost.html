@@ -5,3 +5,32 @@
 <title>Nouveau Post</title>
 {% endblock %}
 
+{% block content %}
+<link rel="stylesheet" href='/static/styles/stylepost.css' />
+<body>
+    <div class="box">
+        <h1>Nouveau Post</h1>
+        <form action="/post" method = "POST">
+            <p>
+                <label for='name'>Nom du post:</label>
+                <input type='text' name='name' placeholder="Rentrer le nom de votre post" required minlength='1' maxlength='200'>
+                </input>
+            </p>
+            <p>
+                <label for='description'>Description:</label>
+                <textarea type='text' name='description' rows="20" placeholder="Décriver le sujet de votre post..." required minlength='1' maxlength='5000' style="height: 80px"></textarea>
+            </p>
+            <p>   
+                <input type= "submit" value="Submit" style="margin-left: auto;
+                                                 margin-right: auto; 
+                                                 width: 90px;
+                                                 border-radius: 4px;
+                                                 border-width: 1px;" >
+                </input>
+            </p> 
+        </form>
+    </div>
+</body>
+    
+
+{% endblock %}

@@ -24,6 +24,10 @@ def post():
      cursor = subs.cursor()
      cursor.execute("""
      INSERT INTO table1(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+     id= """
+     SELECT Max(Numéro_projet)
+     FROM table1
+     """
      subs.commit()
      subs.close()
      return redirect('/')

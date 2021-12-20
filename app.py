@@ -2,7 +2,6 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 from flask import Flask, render_template, request, url_for,redirect,flash
 import datetime
-from createDB import createDB
 
 app = Flask(__name__)
 
@@ -29,7 +28,6 @@ def post():
      cursor.execute("""SELECT MAX(Numéro_projet) FROM table1 """)
      id = cursor.fetchall()
      subs.close()
-     createDB(id)
      return redirect('/')
 
 
@@ -83,7 +81,7 @@ def viewpost(id):
 def newpost(id):
      return render_template('newpost.html',data=id)
 
-@app.route('/postsub/<id>',methods = ['POST'])
+@app.route('/postsub/<id>',methods = ['GET','POST'])
 def postsub(id):
      titre = request.form['titre']
      description = request.form['description']

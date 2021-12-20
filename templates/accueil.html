@@ -9,14 +9,18 @@
 <link rel="stylesheet" href='/static/styles/accueil.css' />
 <body>
 <h1> Les posts </h1>
+    <div class="list-group">
     {% for item in data %}
-        <div class = "box" >
+        <div class="box">
+            <a href = "/sub/{{item[3]}}" class="list-group-item list-group-item-action flex-column align-items-start">
             <h2>Projet : {{item[0]}} </h2>
             <h3>Titre : {{item[1]}}</h3>
             <p>Description : </p>
             <p>{{item[2]}}</p>
+        </a>
         </div>
         <h1></h1>
     {% endfor %}
+    </div>
 </body>   
 {% endblock %}

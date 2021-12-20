@@ -19,11 +19,15 @@ h3{
     color :dimgray;
 }
 
+a{
+    text-decoration: none;
+}
+
 .box{
     text-align: justify;
     padding :20px;
     width: 700px;
-    height: 400px;
+    height : auto ;
     background-color: darkgrey;
     display: flex;
     flex-direction: column;

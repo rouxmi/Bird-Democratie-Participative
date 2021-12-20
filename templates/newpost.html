@@ -27,7 +27,7 @@
 <body>
     <div class="box">
         <h1>Nouveau Post</h1>
-        <form action="{{url_for('postsub',variable = {{data}})}}" method = "POST">
+        <form action="{{url_for('postsub',id = data)}}" method = "POST">
             <p>
                 <label for="titre">Titre du post:</label>
                 <input type="text" class = "form-control" name="titre" placeholder="Insérer le titre de votre post" required minlength='1' maxlength='200'>

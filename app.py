@@ -20,7 +20,7 @@ def parcourir():
 @app.route('/post',methods=['post'])
 def post():
      form_data=request.form.to_dict()
-     subs = sqlite3.connect('sub.db')
+     subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
      cursor.execute("""
      INSERT INTO table1(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
@@ -43,7 +43,7 @@ def recherche():
 def search_results(search):
      resultat = []
      search_str = search['Search']
-     subs = sqlite3.connect('sub.db')
+     subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
      cursor.execute("""SELECT * FROM table1""")
      contenu=cursor.fetchall()
@@ -64,7 +64,7 @@ def search_results(search):
 
 @app.route('/sub/<id>')
 def viewsub(id):
-     subs = sqlite3.connect('sub.db')
+     subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
      query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
      cursor.execute(query,id)
@@ -85,9 +85,9 @@ def newpost(id):
 def postsub(id):
      titre = request.form['titre']
      description = request.form['description']
-     db = sqlite3.connect('post.db')
+     db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("INSERT INTO %s(id_sub,titre,description,date_creation,nbr_visistes) values(%s,%s,%s,%s,%s)",(f"post_{id}",id,titre,description,datetime.date.today(),0))
+     cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,nbr_visites) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
      db.commit()
      db.close()
      return redirect('/')

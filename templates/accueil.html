@@ -4,3 +4,19 @@
 <meta charset="UTF-8">
 <title>Acceuil</title>
 {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href='/static/styles/accueil.css' />
+<body>
+<h1> Les posts </h1>
+    {% for item in data %}
+        <div class = "box" >
+            <h2>Projet : {{item[0]}} </h2>
+            <h3>Titre : {{item[1]}}</h3>
+            <p>Description : </p>
+            <p>{{item[2]}}</p>
+        </div>
+        <h1></h1>
+    {% endfor %}
+</body>   
+{% endblock %}

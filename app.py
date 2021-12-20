@@ -7,7 +7,13 @@ app = Flask(__name__)
 
 @app.route('/')
 def accueil():
-    return render_template('accueil.html')
+     query = "SELECT Nom,titre,posts.description FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(query)
+     L = cursor.fetchall()
+     db.close()
+     return render_template('accueil.html',data = L)
 
 @app.route('/form')
 def form():

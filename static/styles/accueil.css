@@ -1,0 +1,35 @@
+body{
+    background-color: rgb(73, 73, 73);
+}
+
+h1{
+    text-align: center;
+    background-color:rgb(73, 73, 73) ;
+    padding : 20px;
+}
+
+h2{
+    font-size: 3em ;
+    color: darkslateblue;
+
+}
+
+h3{
+    font-size: 2em;
+    color :dimgray;
+}
+
+.box{
+    text-align: justify;
+    padding :20px;
+    width: 700px;
+    height: 400px;
+    background-color: darkgrey;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin:auto;
+    border-radius: 20px;
+    border-width: 10px;
+    border-style: double;
+}

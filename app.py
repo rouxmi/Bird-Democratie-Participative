@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 from flask import Flask, render_template, request, url_for,redirect,flash
 import datetime
+from createDB import createDB
 
 app = Flask(__name__)
 
@@ -24,12 +25,11 @@ def post():
      cursor = subs.cursor()
      cursor.execute("""
      INSERT INTO table1(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
-     id= """
-     SELECT Max(Numéro_projet)
-     FROM table1
-     """
      subs.commit()
+     cursor.execute("""SELECT MAX(Numéro_projet) FROM table1 """)
+     id = cursor.fetchall()
      subs.close()
+     createDB(id)
      return redirect('/')
 
 
@@ -76,24 +76,24 @@ def viewsub(id):
 
 @app.route('/sub/<id>/post')
 def viewpost(id):
-     subs = sqlite3.connect('sub.db')
-     cursor = subs.cursor()
-     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
-     cursor.execute(query,id)
-     L=cursor.fetchall()
-     subs.close()
-     return render_template('viewpost.html', data=(L,id))
+     return render_template('viewpost.html', data=id)
 
 
 @app.route('/sub/<id>/creationpost')
 def newpost(id):
-     subs = sqlite3.connect('sub.db')
-     cursor = subs.cursor()
-     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
-     cursor.execute(query,id)
-     L=(cursor.fetchall(),id)
-     subs.close()
-     return render_template('newpost.html',data=L)
+     return render_template('newpost.html',data=id)
+
+@app.route('/postsub/<id>',methods = ['POST'])
+def postsub(id):
+     titre = request.form['titre']
+     description = request.form['description']
+     db = sqlite3.connect('post.db')
+     cursor = db.cursor()
+     cursor.execute("INSERT INTO %s(id_sub,titre,description,date_creation,nbr_visistes) values(%s,%s,%s,%s,%s)",(f"post_{id}",id,titre,description,datetime.date.today(),0))
+     db.commit()
+     db.close()
+     return redirect('/')
+
 
 
 

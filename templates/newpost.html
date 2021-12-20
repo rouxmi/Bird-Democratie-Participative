@@ -9,10 +9,10 @@
 
 <ul class="nav nav-tabs navbar-dark bg-dark">
     <li class="nav-item">
-      <a class="nav-link" aria-current="page" href="/sub/{{ data[1] }} ">Description</a>
+      <a class="nav-link" aria-current="page" href="/sub/{{data}} ">Description</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" aria-current="page" href="/sub/{{ data[1] }}/post">Posts</a>     
+      <a class="nav-link" aria-current="page" href="/sub/{{data}}/post">Posts</a>     
     </li>
     <li class="nav-item">
       <a class="nav-link disabled">Calendrier</a>
@@ -27,15 +27,15 @@
 <body>
     <div class="box">
         <h1>Nouveau Post</h1>
-        <form action="/post" method = "POST">
+        <form action="{{url_for('postsub',variable = {{data}})}}" method = "POST">
             <p>
-                <label for='name'>Titre du post:</label>
-                <input type='text' name='name' placeholder="Insérer le titre de votre post" required minlength='1' maxlength='200'>
+                <label for="titre">Titre du post:</label>
+                <input type="text" class = "form-control" name="titre" placeholder="Insérer le titre de votre post" required minlength='1' maxlength='200'>
                 </input>
             </p>
             <p>
-                <label for='description'>Description:</label>
-                <textarea type='text' name='description' rows="20" placeholder="Décriver le sujet de votre post..." required minlength='1' maxlength='5000' style="height: 80px"></textarea>
+                <label for="description">Description:</label>
+                <textarea type="text" class = "form-control" name="description" rows="20" placeholder="Décriver le sujet de votre post..." required minlength='1' maxlength='5000' style="height: 80px"></textarea>
             </p>
             <p>   
                 <input type= "submit" value="Submit" style="margin-left: auto;

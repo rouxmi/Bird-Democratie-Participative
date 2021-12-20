@@ -20,14 +20,12 @@ def parcourir():
 @app.route('/post',methods=['post'])
 def post():
      form_data=request.form.to_dict()
-     subs = sqlite3.connect('database.db')
-     cursor = subs.cursor()
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      cursor.execute("""
      INSERT INTO subs(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
-     subs.commit()
-     cursor.execute("""SELECT MAX(Numéro_projet) FROM subs """)
-     id = cursor.fetchall()
-     subs.close()
+     db.commit()
+     db.close()
      return redirect('/')
 
 

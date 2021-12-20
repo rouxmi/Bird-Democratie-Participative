@@ -23,9 +23,9 @@ def post():
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
      cursor.execute("""
-     INSERT INTO table1(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+     INSERT INTO subs(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
      subs.commit()
-     cursor.execute("""SELECT MAX(Numéro_projet) FROM table1 """)
+     cursor.execute("""SELECT MAX(Numéro_projet) FROM subs """)
      id = cursor.fetchall()
      subs.close()
      return redirect('/')
@@ -45,7 +45,7 @@ def search_results(search):
      search_str = search['Search']
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
-     cursor.execute("""SELECT * FROM table1""")
+     cursor.execute("""SELECT * FROM subs""")
      contenu=cursor.fetchall()
      resultat=[]
      for row in contenu:
@@ -66,7 +66,7 @@ def search_results(search):
 def viewsub(id):
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
-     query='''SELECT Nom,description FROM table1 WHERE Numéro_projet=?'''
+     query='''SELECT Nom,description FROM subs WHERE Numéro_projet=?'''
      cursor.execute(query,id)
      L=(cursor.fetchall(),id)
      subs.close()
@@ -87,7 +87,7 @@ def postsub(id):
      description = request.form['description']
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,nbr_visites) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
+     cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
      db.commit()
      db.close()
      return redirect('/')

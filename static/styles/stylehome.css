@@ -17,3 +17,15 @@ header {
 .btn-default {
   border-color: rgb(255, 0, 0);
 }
+
+.titreSub {
+  text-align: center;
+  background-color: rgb(73, 73, 73);
+  font-size: 50px;
+
+}
+
+.descriptionSub {
+  background-color: rgb(73, 73, 73);
+  font-size: 25px;
+}

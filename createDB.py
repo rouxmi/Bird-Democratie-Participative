@@ -9,6 +9,3 @@ def createDB(id):
     db.commit()
     db.close()
 
-if __name__== '__main__':
-    createDB(2)
-

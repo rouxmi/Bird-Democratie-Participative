@@ -15,7 +15,12 @@ def form():
 
 @app.route('/parcourir')
 def parcourir():
-     return render_template('parcourir.html')
+     db='database.db'
+     con=sqlite3.connect(db)
+     cur=con.cursor()
+     cur.execute("SELECT * FROM subs ;")
+     L=cur.fetchall()
+     return render_template('parcourir.html',data=L)
 
 @app.route('/post',methods=['post'])
 def post():

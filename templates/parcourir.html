@@ -6,6 +6,20 @@
 {% endblock %}
 
 {% block content %}
-<p>Projets</p>
+
+<h1>Projets</h1>
+
+<div class = "wrapper">
+    {% for items in data %}
+    <div class = "projets">
+        <p>nom du projet: {{items[0]}}</p>
+        <p>posté par : {{items[1]}}</p>
+        <p>mots clés : {{items[3]}}</p>
+        <p>description : {{items[4]}}</p>
+        <p>création : {{items[5]}}</p>
+    </div>
+    {% endfor %}
+</div>
+
 
 {% endblock %}

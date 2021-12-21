@@ -8,32 +8,10 @@ h1{
     padding : 20px;
 }
 
-h2{
-    font-size: 3em ;
-    color: darkslateblue;
-
-}
-
-h3{
-    font-size: 2em;
-    color :dimgray;
-}
-
 a{
     text-decoration: none;
 }
 
-.box{
-    text-align: justify;
-    padding :20px;
-    width: 700px;
-    height : auto ;
-    background-color: darkgrey;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin:auto;
-    border-radius: 20px;
-    border-width: 10px;
-    border-style: double;
+.post{
+    max-width: 400px;
 }

@@ -9,17 +9,23 @@
 <link rel="stylesheet" href='/static/styles/accueil.css' />
 <body>
 <h1> Les posts </h1>
-    <div class="list-group">
+    <div class="card-columns">
     {% for item in data %}
-        <div class="box">
-            <a href = "/sub/{{item[3]}}" class="list-group-item list-group-item-action flex-column align-items-start">
-            <h2>Projet : {{item[0]}} </h2>
-            <h3>Titre : {{item[1]}}</h3>
-            <p>Description : </p>
-            <p>{{item[2]}}</p>
-        </a>
+        <div class="card bg-light mb-3" style="width : 50rem; margin:auto;">
+            <a href = "/sub/{{item[3]}}" class="list-group-item-action flex-column align-items-start">
+                <div class="card-header">
+                    <h2 class="card-title">Projet : {{item[0]}} </h2>
+                </div>
+            </a>
+                <div class="card-body">
+                    <h3 class="card-subtile">{{item[1]}}</h3>
+                    <p class="card-text">{{item[2]}}</p>
+                    <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
+                    <button class = "btn btn-block btn-secondary">LIKE</button>
+                    <button class = "btn btn-block btn-secondary">DISLIKE</button>
+                </div>
+            
         </div>
-        <h1></h1>
     {% endfor %}
     </div>
 </body>   

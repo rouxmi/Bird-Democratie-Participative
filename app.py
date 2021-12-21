@@ -83,7 +83,12 @@ def viewsub(id):
 
 @app.route('/sub/<id>/post')
 def viewpost(id):
-     return render_template('viewpost.html', data=id)
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     query = '''SELECT titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
+     cursor.execute(query,id)
+     L =(cursor.fetchall(),id)
+     return render_template('viewpost.html', data=L)
 
 
 @app.route('/sub/<id>/creationpost')

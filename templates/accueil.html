@@ -21,10 +21,11 @@
                     <h3 class="card-subtile">{{item[1]}}</h3>
                     <p class="card-text">{{item[2]}}</p>
                     <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
-                    <button class = "btn btn-block btn-secondary">LIKE</button>
-                    <button class = "btn btn-block btn-secondary">DISLIKE</button>
+                    <div class="btn-group">
+                        <a class = "btn btn-block btn-secondary" href='/{{item[5]}}/ajoutcompteur'>LIKE</a>
+                        <a class = "btn btn-block btn-secondary" href='/{{item[5]}}/retraitcompteur'>DISLIKE</a>
+                    </div>
                 </div>
-            
         </div>
     {% endfor %}
     </div>

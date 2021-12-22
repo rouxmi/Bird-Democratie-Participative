@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def accueil():
-     query = "SELECT Nom,titre,posts.description,id_sub,posts.date_creation FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
+     query = "SELECT Nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      cursor.execute(query)
@@ -107,7 +107,23 @@ def postsub(id):
      return redirect('/')
 
 
+@app.route('/<id>/ajoutcompteur')
+def updatecompteurpostpositif(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
+     db.commit()
+     db.close()
+     return redirect('/')
 
+@app.route('/<id>/retraitcompteur')
+def updatecompteurpostnegatif(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
+     db.commit()
+     db.close()
+     return redirect('/')
 
 
 if __name__=='__main__':

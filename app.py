@@ -67,7 +67,7 @@ def enregistre():
 
 @app.route('/accueil')
 def accueil():
-     query = "SELECT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
+     query = "SELECT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation DESC;"
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      cursor.execute(query)
@@ -138,7 +138,7 @@ def viewsub(id):
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
      query="SELECT nom,description FROM subs WHERE numéro_projet=?;"
-     cursor.execute(query,id)
+     cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
      L=(cursor.fetchall(),id)
      subs.close()
      return render_template('viewsub.html',data=L)

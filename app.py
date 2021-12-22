@@ -1,11 +1,74 @@
 import sqlite3
 from sqlite3.dbapi2 import Cursor
-from flask import Flask, render_template, request, url_for,redirect,flash
+import os 
+from flask import Flask, render_template, request, url_for,redirect,flash,session
 import datetime
 
+
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"]=False
+app.config["SESSION_TYPE"]="file_system"
+app.secret_key=os.urandom(12)
+
 
 @app.route('/')
+def login():
+     if not session.get("id"):
+          return render_template('login.html', message=1)
+     else:
+          return redirect('/accueil')
+
+@app.route('/connect',methods=['post'])
+def connect():
+     form_data=request.form.to_dict()
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     print(type(form_data['username']))
+     cursor.execute(""" SELECT mdp FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
+     verif=cursor.fetchall()
+     
+     if verif[0][0]==str(form_data['password']):
+          cursor.execute(""" SELECT id_user,Nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
+          id=cursor.fetchall()
+          db.close()
+          session['id']=id[0][0]
+          session['Nom']=id[0][1]
+          session['prénom']=id[0][2]
+          session['username']=id[0][3]
+          session['password']=verif
+          return redirect('/accueil')
+     else:
+          db.close()
+          return render_template('login.html',message=str('Votre mail ou votre mot de passe est erroné veuillez réessayer'))
+
+     
+
+@app.route('/register')
+def register():
+     return render_template('register.html',message=1)
+
+
+@app.route('/enregistrement',methods=['get','post'])
+def enregistre():
+     if request.method == 'POST':
+          form=request.form.to_dict()
+          print(form)
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute(""" SELECT nom FROM utilisateurs WHERE mail=?""",(str(form['mail']),))
+          verif=cursor.fetchall()
+          if verif!=[]:
+               db.close()
+               return render_template('register.html',message='mail déjà utilisé')
+          else:
+               cursor.execute(""" INSERT INTO utilisateurs(Nom,prénom,mail,mdp,Niveau) values(?,?,?,?,?)""",(str(form['nom']),str(form['prénom']),str(form['mail']),str(form['mdp']),'A'))
+               db.commit()
+               db.close()
+               return redirect('/')
+     else:
+          return redirect('/')
+
+@app.route('/accueil')
 def accueil():
      query = "SELECT Nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
      db = sqlite3.connect('database.db')

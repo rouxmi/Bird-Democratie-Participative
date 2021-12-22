@@ -226,6 +226,10 @@ def updatecompteurpostnegatif(id):
           db.close()
           return redirect('/')
 
+@app.route('/profil')
+def voirleprofil():
+     return render_template('profil.html')
+
 
 if __name__=='__main__':
      app.run(debug=1)

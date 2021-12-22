@@ -137,25 +137,46 @@ def search_results(search):
 def viewsub(id):
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
-     query="SELECT nom,description FROM subs WHERE numéro_projet=?;"
-     cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
-     L=(cursor.fetchall(),id)
-     subs.close()
-     return render_template('viewsub.html',data=L)
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          query="SELECT nom,description FROM subs WHERE numéro_projet=?;"
+          cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
+          L=(cursor.fetchall(),id)
+          subs.close()
+          return render_template('viewsub.html',data=L)
+     else:
+          subs.close()
+          return redirect('/')
 
 @app.route('/sub/<id>/post')
 def viewpost(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     query = '''SELECT titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
-     cursor.execute(query,id)
-     L =(cursor.fetchall(),id)
-     return render_template('viewpost.html', data=L)
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          query = '''SELECT titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
+          cursor.execute(query,id)
+          L =(cursor.fetchall(),id)
+          return render_template('viewpost.html', data=L)
+     else:
+          db.close()
+          return redirect('/')
 
 
 @app.route('/sub/<id>/creationpost')
 def newpost(id):
-     return render_template('newpost.html',data=id)
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     db.close()
+     if test!=[]:
+          return render_template('newpost.html',data=id)
+     else:
+          db.close()
+          return redirect('/')
 
 @app.route('/postsub/<id>',methods = ['GET','POST'])
 def postsub(id):
@@ -163,29 +184,48 @@ def postsub(id):
      description = request.form['description']
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
-     db.commit()
-     db.close()
-     return redirect('/')
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
+          db.commit()
+          db.close()
+          return redirect('/')
+     else:
+          db.close()
+          return redirect('/')
+     
 
 
 @app.route('/<id>/ajoutcompteur')
 def updatecompteurpostpositif(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
-     db.commit()
-     db.close()
-     return redirect('/')
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
+          db.commit()
+          db.close()
+          return redirect('/')
+     else:
+          db.close()
+          return redirect('/')
 
 @app.route('/<id>/retraitcompteur')
 def updatecompteurpostnegatif(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
-     db.commit()
-     db.close()
-     return redirect('/')
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
+          db.commit()
+          db.close()
+          return redirect('/')
+     else:
+          db.close()
+          return redirect('/')
 
 
 if __name__=='__main__':

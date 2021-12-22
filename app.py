@@ -26,18 +26,18 @@ def connect():
      cursor.execute(""" SELECT mdp FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
      verif=cursor.fetchall()
      if verif[0][0]==str(form_data['password']):
-          cursor.execute(""" SELECT id_user,Nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
+          cursor.execute(""" SELECT id_user,nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
           id=cursor.fetchall()
           db.close()
           session['id']=id[0][0]
-          session['Nom']=id[0][1]
+          session['nom']=id[0][1]
           session['prénom']=id[0][2]
           session['username']=id[0][3]
           session['password']=verif
           return redirect('/accueil')
      else:
           db.close()
-          return render_template('login.html',message=str('Votre mail ou votre mot de passe est erroné veuillez réessayer'))
+          return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))
 
      
 
@@ -58,7 +58,7 @@ def enregistre():
                db.close()
                return render_template('register.html',message='mail déjà utilisé')
           else:
-               cursor.execute(""" INSERT INTO utilisateurs(Nom,prénom,mail,mdp,Niveau) values(?,?,?,?,?)""",(str(form['nom']),str(form['prénom']),str(form['mail']),str(form['mdp']),'A'))
+               cursor.execute(""" INSERT INTO utilisateurs(nom,prénom,mail,mdp,Niveau) values(?,?,?,?,?)""",(str(form['nom']),str(form['prénom']),str(form['mail']),str(form['mdp']),'A'))
                db.commit()
                db.close()
                return redirect('/')
@@ -67,7 +67,7 @@ def enregistre():
 
 @app.route('/accueil')
 def accueil():
-     query = "SELECT Nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
+     query = "SELECT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation;"
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      cursor.execute(query)
@@ -96,7 +96,7 @@ def post():
      cursor = db.cursor()
      id=session.get('id')
      cursor.execute("""
-     INSERT INTO subs(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+     INSERT INTO subs(nom,posté_par,mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
      db.commit()
      db.close()
      return redirect('/')
@@ -137,7 +137,7 @@ def search_results(search):
 def viewsub(id):
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
-     query='''SELECT Nom,description FROM subs WHERE Numéro_projet=?'''
+     query="SELECT nom,description FROM subs WHERE numéro_projet=?;"
      cursor.execute(query,id)
      L=(cursor.fetchall(),id)
      subs.close()

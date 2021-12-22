@@ -84,7 +84,7 @@ def parcourir():
      db='database.db'
      con=sqlite3.connect(db)
      cur=con.cursor()
-     cur.execute("SELECT * FROM subs ;")
+     cur.execute("SELECT * FROM subs ORDER BY création DESC;")
      L=cur.fetchall()
      con.close()
      return render_template('parcourir.html',data=L)

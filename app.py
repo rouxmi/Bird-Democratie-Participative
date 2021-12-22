@@ -23,10 +23,8 @@ def connect():
      form_data=request.form.to_dict()
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     print(type(form_data['username']))
      cursor.execute(""" SELECT mdp FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
      verif=cursor.fetchall()
-     
      if verif[0][0]==str(form_data['password']):
           cursor.execute(""" SELECT id_user,Nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
           id=cursor.fetchall()
@@ -52,7 +50,6 @@ def register():
 def enregistre():
      if request.method == 'POST':
           form=request.form.to_dict()
-          print(form)
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
           cursor.execute(""" SELECT nom FROM utilisateurs WHERE mail=?""",(str(form['mail']),))
@@ -89,6 +86,7 @@ def parcourir():
      cur=con.cursor()
      cur.execute("SELECT * FROM subs ;")
      L=cur.fetchall()
+     con.close()
      return render_template('parcourir.html',data=L)
 
 @app.route('/post',methods=['post'])
@@ -96,8 +94,9 @@ def post():
      form_data=request.form.to_dict()
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
+     id=session.get('id')
      cursor.execute("""
-     INSERT INTO subs(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),'admin',str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+     INSERT INTO subs(Nom,Posté_par,Mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
      db.commit()
      db.close()
      return redirect('/')

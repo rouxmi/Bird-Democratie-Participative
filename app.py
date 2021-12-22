@@ -140,7 +140,6 @@ def viewsub(id):
      cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
      test=cursor.fetchall()
      if test!=[]:
-          query="SELECT nom,description FROM subs WHERE numéro_projet=?;"
           cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
           L=(cursor.fetchall(),id)
           subs.close()

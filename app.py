@@ -3,13 +3,27 @@ from sqlite3.dbapi2 import Cursor
 import os 
 from flask import Flask, render_template, request, url_for,redirect,flash,session
 import datetime
-
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"]=False
 app.config["SESSION_TYPE"]="file_system"
+app.config["IMAGE_UPLOADS"] = "static/img/uploads"
+app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG", "GIF"]
+
 app.secret_key=os.urandom(12)
 
+def allowed_image(filename):
+
+    if not "." in filename:
+        return False
+
+    ext = filename.rsplit(".", 1)[1]
+
+    if ext.upper() in app.config["ALLOWED_IMAGE_EXTENSIONS"]:
+        return True
+    else:
+        return False
 
 @app.route('/')
 def login():
@@ -183,16 +197,30 @@ def postsub(id):
      description = request.form['description']
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if request.method=='POST':
           cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
+          cursor.execute("SELECT max(id_post) FROM posts")
+          idpost=cursor.fetchall()
           db.commit()
           db.close()
-          return redirect('/')
-     else:
-          db.close()
-          return redirect('/')
+          if "image" in request.files:
+               image = request.files["image"]
+               split_tup = os.path.splitext(image.filename)
+               file_extension = split_tup[1]
+               if image.filename == "":
+                    print("pas de nom")
+                    return redirect('/sub/'+str(id)+'/creationpost')
+
+               if allowed_image(image.filename):
+                    image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])+str(file_extension)))
+                    print("image sauvegardé")
+                    return redirect('/sub/'+str(id)+'/creationpost')
+               
+               else:
+                    print("type de fichier non supporté")
+                    return redirect('/sub/'+str(id)+'/creationpost')
+          return redirect('/sub/'+str(id)+'/creationpost')
+     return render_template('newpost.html')
      
 
 

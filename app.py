@@ -162,6 +162,24 @@ def viewsub(id):
           subs.close()
           return redirect('/')
 
+@app.route("/<id>/abonnement")
+def abonnement(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?;""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
+          db.commit()
+          db.close()
+          return redirect(url_for('viewsub',id=id))
+     else :
+          db.close()
+          return redirect('/')
+
+
+     
+
 @app.route('/sub/<id>/post')
 def viewpost(id):
      db = sqlite3.connect('database.db')

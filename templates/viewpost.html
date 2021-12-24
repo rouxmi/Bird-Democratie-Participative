@@ -30,11 +30,36 @@
   {% for item in data[0] %}
       <div class="card bg-light mb-3" style="width : 50rem; margin:auto;">
         <div class="card-body">
-            <h3 class="card-title">{{item[0]}}</h3>
-            <p class="card-text">{{item[1]}}</p>
-            <footer class = "blockquote-footer">Posté le {{item[3]}}</footer>
+            <h3 class="card-title">{{item[1]}}</h3>
+            <p class="card-text">{{item[2]}}</p>
+            <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
             <button class = "btn btn-block btn-secondary">LIKE</button>
             <button class = "btn btn-block btn-secondary">DISLIKE</button>
+            <form  action='/comment/{{item[0]}}'  method = "POST">
+              <label for='commentaire' style='padding-left: 1.5rem'>Votre commentaire :</label>
+              <textarea  type='text' name='commentaire' rows="6" placeholder="écrivez votre commentaire..."
+            required
+              minlength='1' maxlength='500' style="height: 80px; width: 45rem; display: block;
+              margin-left: auto;
+              margin-right: auto;"></textarea>
+              <input type= "submit" value="Submit" style="display: flex;
+              justify-content: center; 
+              width: 90px;
+              border-radius: 4px;
+              border-width: 1px;" >
+            </input>
+            </form>
+        </div>
+        <p>{{comments[item[0]]}}</p>
+        <div class="btn-group dropup">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style='width: 50rem;'>
+            Commentaire
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            {% for comment in comments[item[0]] %}
+            <button class="dropdown-item" type="button">{{comment[0]}}</button>
+            {% endfor %}
+          </div>
         </div>
           
       </div>

@@ -15,3 +15,19 @@ def createDBabonnements():
     db.commit()
     db.close()
 
+def createDBparticipants():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute("CREATE TABLE participants(sub INTEGER NOT NULL,utilisateur INTEGER NOT NULL, PRIMARY KEY(sub,utilisateur),FOREIGN KEY(sub) REFERENCES subs(numéro_projet),FOREIGN KEY(utilisateur) REFERENCES utilisateurs(id_user));")
+    db.commit()
+    db.close()
+
+def createDBdemandeparticipation():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute("CREATE TABLE demande_participation(sub INTEGER NOT NULL,utilisateur INTEGER NOT NULL, PRIMARY KEY(sub,utilisateur),FOREIGN KEY(sub) REFERENCES subs(numéro_projet),FOREIGN KEY(utilisateur) REFERENCES utilisateurs(id_user));")
+    db.commit()
+    db.close()
+
+
+

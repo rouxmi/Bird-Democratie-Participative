@@ -20,6 +20,10 @@
                 <div class="card-body">
                     <h3 class="card-subtile">{{item[1]}}</h3>
                     <p class="card-text">{{item[2]}}</p>
+                    {% if  os.path.isfile("static/img/uploads/"~item[5]) == True %}
+                        <img src="static/img/uploads/{{item[5]}}" class= image_post > 
+                        <hr>
+                    {% endif %}
                     <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
                     <div class="btn-group">
                         <a class = "btn btn-block btn-secondary" href='/{{item[5]}}/ajoutcompteur'>LIKE</a>

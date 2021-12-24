@@ -29,3 +29,8 @@ header {
   background-color: rgb(73, 73, 73);
     font-size: 25px;
 }
+
+.image_post {
+  height:345px ;
+  width: auto ; 
+}

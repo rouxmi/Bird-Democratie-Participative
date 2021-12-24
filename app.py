@@ -5,7 +5,13 @@ from flask import Flask, render_template, request, url_for,redirect,flash,sessio
 import datetime
 from werkzeug.utils import secure_filename
 
+
 app = Flask(__name__)
+
+@app.context_processor
+def handle_context():
+    return dict(os=os)
+    
 app.config["SESSION_PERMANENT"]=False
 app.config["SESSION_TYPE"]="file_system"
 app.config["IMAGE_UPLOADS"] = "static/img/uploads"
@@ -98,6 +104,7 @@ def accueil():
      cursor.execute(query)
      L = cursor.fetchall()
      db.close()
+     os.path.isfile("static/img/uploads/")
      return render_template('accueil.html',data = L)
 
 @app.route('/form')
@@ -275,7 +282,7 @@ def postsub(id):
                          return redirect('/sub/'+str(id)+'/creationpost')
 
                     if allowed_image(image.filename):
-                         image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])+str(file_extension)))
+                         image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])))
                          print("image sauvegardé")
                          return redirect('/sub/'+str(id)+'/creationpost')
                     

@@ -9,6 +9,13 @@
 <body>
     <h1 style='margin-top: 20px;
                 text-align: center;'>Mon Profil</h1>
+
+    <ul>
+        <l style='margin-top: 20px; text-align: center;'> Nom : {{ L[0][0] }} </l>
+        <l style='margin-top: 20px; text-align: center;'> Prénom : {{ L[0][1] }} </l>
+        <l style='margin-top: 20px; text-align: center;'> Adresse mail : {{ L[0][2] }} </l>
+        <l style='margin-top: 20px; text-align: center;'> Mot de passe : {{ mdp }} </l>
+    </ul>
     {% if data is string%}
         <form method="get" action="/validation" style="margin-top : 50px;
                                                         text-align: center;">

@@ -25,6 +25,17 @@ def allowed_image(filename):
     else:
         return False
 
+def test_id_sub(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?;""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          return True
+     else: 
+          return False
+
+
 @app.route('/')
 def login():
      if not session.get("id"):
@@ -151,9 +162,7 @@ def search_results(search):
 def viewsub(id):
      subs = sqlite3.connect('database.db')
      cursor = subs.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if test_id_sub(id):
           cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
           L=(cursor.fetchall(),id)
           subs.close()
@@ -166,9 +175,7 @@ def viewsub(id):
 def abonnement(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?;""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if test_id_sub(id):
           cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
           db.commit()
           db.close()
@@ -184,9 +191,7 @@ def abonnement(id):
 def viewpost(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if test_id_sub(id):
           query = '''SELECT titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
           cursor.execute(query,id)
           L =(cursor.fetchall(),id)
@@ -200,10 +205,7 @@ def viewpost(id):
 def newpost(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     db.close()
-     if test!=[]:
+     if test_id_sub(id):
           return render_template('newpost.html',data=id)
      else:
           db.close()
@@ -215,30 +217,34 @@ def postsub(id):
      description = request.form['description']
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     if request.method=='POST':
-          cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
-          cursor.execute("SELECT max(id_post) FROM posts")
-          idpost=cursor.fetchall()
-          db.commit()
-          db.close()
-          if "image" in request.files:
-               image = request.files["image"]
-               split_tup = os.path.splitext(image.filename)
-               file_extension = split_tup[1]
-               if image.filename == "":
-                    print("pas de nom")
-                    return redirect('/sub/'+str(id)+'/creationpost')
+     if test_id_sub(id):
+          if request.method=='POST':
+               cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
+               cursor.execute("SELECT max(id_post) FROM posts")
+               idpost=cursor.fetchall()
+               db.commit()
+               db.close()
+               if "image" in request.files:
+                    image = request.files["image"]
+                    split_tup = os.path.splitext(image.filename)
+                    file_extension = split_tup[1]
+                    if image.filename == "":
+                         print("pas de nom")
+                         return redirect('/sub/'+str(id)+'/creationpost')
 
-               if allowed_image(image.filename):
-                    image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])+str(file_extension)))
-                    print("image sauvegardé")
-                    return redirect('/sub/'+str(id)+'/creationpost')
-               
-               else:
-                    print("type de fichier non supporté")
-                    return redirect('/sub/'+str(id)+'/creationpost')
-          return redirect('/sub/'+str(id)+'/creationpost')
-     return render_template('newpost.html')
+                    if allowed_image(image.filename):
+                         image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])+str(file_extension)))
+                         print("image sauvegardé")
+                         return redirect('/sub/'+str(id)+'/creationpost')
+                    
+                    else:
+                         print("type de fichier non supporté")
+                         return redirect('/sub/'+str(id)+'/creationpost')
+               return redirect('/sub/'+str(id)+'/creationpost')
+          return render_template('newpost.html')
+     else:
+          db.close()
+          return redirect('/')
      
 
 
@@ -246,9 +252,7 @@ def postsub(id):
 def updatecompteurpostpositif(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if test_id_sub(id):
           cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
           db.commit()
           db.close()
@@ -261,9 +265,7 @@ def updatecompteurpostpositif(id):
 def updatecompteurpostnegatif(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
-     test=cursor.fetchall()
-     if test!=[]:
+     if test_id_sub(id):
           cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
           db.commit()
           db.close()

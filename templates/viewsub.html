@@ -13,29 +13,51 @@
     <li class="nav-item">
       <a class="nav-link" aria-current="page" href="/sub/{{ id }}/post">Posts</a>     
     </li>
+    {% if owner or abonne %}
+    <li class="nav-item">
+      <a class="nav-link">Calendrier</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link">Chat</a>
+    </li>
+    {% else %}
     <li class="nav-item">
       <a class="nav-link disabled">Calendrier</a>
     </li>
     <li class="nav-item">
         <a class="nav-link disabled">Chat</a>
     </li>
-  
+    {% endif %}
 </ul>
+
 <h1 class="titreSub " style = "margin:auto; padding: 20px;">{{data[0][0]}}</h1>
 <body style = "background-color: rgb(73,73,73);">
-  <p class="descriptionSub" style = "margin: auto; width: 40rem;background-color: rgb(73,73,73);">{{data[0][1]}}</p>
-  {% if owner %}
-  <div class = "col text-center">
-    <a class = "btn btn-secondary" href="/{{id}}/participants">Gérer les demande de participation</a>
+  <div class="container">
+    <div class = "row">
+      <div class = "col-3 text-center" style="height: 200px;">
+        <p class="descriptionSub"><strong>Créateur du projet</strong></p>
+        <p class = "descriptionSub">{{data[0][3]}} {{data[0][4]}}</p>
+      </div>
+      <div class = "col-6 text-center descriptionSub" style = "height: 200px; ">{{data[0][1]}}</div>
+      <div class = "col-3 text-center" style = "height: 200px;">
+        {% if owner %}
+        {% else %}
+          {% if abonne %}
+          <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+          {% else %}
+          <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
   </div>
-  {% else %}
-  <div class="col text-center">
-    {% if abonne %}
-      <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
-    {% else %}
-      <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
-    {% endif %}
+ 
+
+</body>
+<body style = "background-color: rgb(73,73,73);">
+  <h1 class= "text-center" style = "margin:auto; padding: 20px;">Les participants</h1>
+  <div class = "col-6 text-center">
+
   </div>
-  {% endif %}
 </body>
 {% endblock %}

@@ -170,11 +170,11 @@ def viewsub(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_id_sub(id):
-          cursor.execute("SELECT nom,description,créé_par FROM subs WHERE numéro_projet=%s;" % id)
+          cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
           data = cursor.fetchall()
           user_id = session.get('id')
           #Tes si l'utilisateur est le créateur du projet
-          if data[0][2] == str(user_id) :
+          if data[0][2] == user_id :
                db.close()
                return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None)
           else :
@@ -217,7 +217,7 @@ def desabonnement(id):
           return redirect('/')
 
 
-@app.route('/<id>/participants')
+@app.route('/sub/<id>/participants')
 def demande_participation(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()

@@ -30,4 +30,10 @@ def createDBdemandeparticipation():
     db.close()
 
 
+def createDBsubs():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute("CREATE TABLE subs(nom TEXT, créé_par INTEGER, numéro_projet INTEGER PRIMARY KEY, mots_clés TEXT, description TEXT, création DATE,FOREIGN KEY(créé_par) REFERENCES utilisateurs(id_user));")
+    db.commit()
+    db.close()
 

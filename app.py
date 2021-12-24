@@ -210,10 +210,15 @@ def viewpost(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_id_sub(id):
-          query = '''SELECT titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
-          cursor.execute(query,id)
+          query = '''SELECT id_post,titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
+          cursor.execute(query,(id,))
           L =(cursor.fetchall(),id)
-          return render_template('viewpost.html', data=L)
+          comments={}
+          for row in L[0]:
+               idpost=row[0]
+               cursor.execute('SELECT contenu,posté_par FROM commentaires WHERE id_post=?',(idpost,))
+               comments[idpost]=cursor.fetchall()
+          return render_template('viewpost.html', data=L,comments=comments)
      else:
           db.close()
           return redirect('/')
@@ -342,8 +347,17 @@ def update_niveau(id,admin,niveau):
           return redirect('/')
 
      
-     
-
+@app.route('/comment/<id>',methods=['post'])
+def post_commentaire(id):
+     content=request.form.to_dict()
+     print(content)
+     if request.method=='POST':
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post) VALUES (?,?,?)',(content['commentaire'],str(session.get('id')),id))
+          db.commit()
+          db.close()
+     return redirect('/sub/'+str(id)+'/post')
 
 if __name__=='__main__':
      app.run(debug=1)

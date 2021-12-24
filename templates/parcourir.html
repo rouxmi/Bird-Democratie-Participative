@@ -13,9 +13,9 @@
 
 <div class = "wrapper">
     {% for items in data %}
-    <a href="/sub/{{ items[2] }}" class="subs">
+    <a href="/sub/{{ items[2] }}" class="list-group-item-action flex-column align-items-start">
     <div class = "projets">
-        <p>nom du projet: {{items[0]}}</p>
+        <div class="titre">Nom du projet: {{items[0]}}</div>
         <p>posté par : {{items[1]}}</p>
         <p>mots clés : {{items[3]}}</p>
         <p>description : {{items[4]}}</p>

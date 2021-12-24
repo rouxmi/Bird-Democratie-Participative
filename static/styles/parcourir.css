@@ -4,6 +4,16 @@ h1{
     padding : 20px;
 }
 
+a{
+    text-decoration: none;
+}
+
+.titre{
+    text-align: center;
+    background-color:rgb(162, 162, 162) ;
+    padding : 20px;
+}
+
 .wrapper{
     display : grid ;
     grid-template-columns : repeat(3,1fr);
@@ -11,8 +21,4 @@ h1{
     margin-top : 50px ;
     margin-bottom : 50px ;
     grid-auto-rows: minmax(100px,auto)
-}
-
-.subs{
-    text-decoration:none; 
 }

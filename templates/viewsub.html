@@ -24,6 +24,11 @@
 <h1 class="titreSub " style = "margin:auto; padding: 20px;">{{data[0][0]}}</h1>
 <body style = "background-color: rgb(73,73,73);">
   <p class="descriptionSub" style = "margin: auto; width: 40rem;background-color: rgb(73,73,73);">{{data[0][1]}}</p>
+  {% if owner %}
+  <div class = "col text-center">
+    <a class = "btn btn-secondary" href="/{{id}}/participants">Gérer les demande de participation</a>
+  </div>
+  {% else %}
   <div class="col text-center">
     {% if abonne %}
       <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
@@ -31,5 +36,6 @@
       <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
     {% endif %}
   </div>
+  {% endif %}
 </body>
 {% endblock %}

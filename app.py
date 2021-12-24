@@ -276,7 +276,55 @@ def updatecompteurpostnegatif(id):
 
 @app.route('/profil')
 def voirleprofil():
-     return render_template('profil.html')
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     niveau=cursor.fetchall()
+     if niveau[0][0]=='A':
+          return render_template('profil.html',data='e')
+     else:
+          return render_template('profil.html',data=1)
+
+@app.route('/validation')
+def validation_utilisateur():
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     niveau=cursor.fetchall()
+     if niveau[0][0]=='A':
+          cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
+          data=cursor.fetchall()
+          return render_template('validation.html',data=data,admin=str(session.get("id")))
+     else:
+          return redirect('/')
+
+@app.route('/<id>/<admin>/<niveau>')
+def update_niveau(id,admin,niveau):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(id)))
+     niv=cursor.fetchall()
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(admin)))
+     user=cursor.fetchall()
+     if user[0][0]=='A' and niv!=[]:
+          if niveau=='Admin':
+               cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE id_user=?",(str(id),))
+               db.commit()
+               db.close()
+               return redirect('/validation')
+          elif niveau=='Validé':
+               cursor.execute("UPDATE utilisateurs SET niveau='V' WHERE id_user=?",(str(id),))
+               db.commit()
+               db.close()
+               return redirect('/validation')
+          else:
+               return redirect('/')
+     else:
+          db.close()
+          return redirect('/')
+
+     
+     
 
 
 if __name__=='__main__':

@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+<meta charset="UTF-8">
+<title>Validation</title>
+{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Tout les utlisateurs</h1>
+    <p>A=admin , V=validé, B=basique</p>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Nom</th>
+            <th scope="col">Prénom</th>
+            <th scope="col">Niveau actuel</th>
+            <th scope="col">Validé</th>
+            <th scope="col">Admin</th>
+          </tr>
+        </thead>
+        <tbody>
+        
+        {% for row in data %}
+        <tr>
+            <th scope="row">{{row[1]}}</th>
+            <td>{{row[2]}}</td>
+            <td>{{row[3]}}</td>
+            <td>{{row[0]}}</td>
+            <div class="btn-group">
+            <td><a href="/{{row[1]}}/{{admin}}/Validé" class="btn btn-dark">Mettre en Validé</a></td>
+            <td><a href="/{{row[1]}}/{{admin}}/Admin" class="btn btn-dark">Mettre en Admin</a></td>
+            </div>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    
+</body>
+{% endblock %}

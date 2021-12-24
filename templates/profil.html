@@ -7,7 +7,15 @@
 
 {% block content %}
 <body>
-    <h1>Mon Profil</h1>
+    <h1 style='margin-top: 20px;
+                text-align: center;'>Mon Profil</h1>
+    {% if data is string%}
+        <form method="get" action="/validation" style="margin-top : 50px;
+                                                        text-align: center;">
+
+            <button  class="btn btn-dark" type="submit">gérer les niveaux utilisateurs</button>
+        </form>
+    {% endif %}
     
 </body>
 {% endblock %}

@@ -285,10 +285,16 @@ def voirleprofil():
      cursor = db.cursor()
      cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
      niveau=cursor.fetchall()
+     cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     L= cursor.fetchall()
+     mdp=L[0][3]
+     mdp2=''
+     for i in range(len(mdp)):
+          mdp2+='*'
      if niveau[0][0]=='A':
-          return render_template('profil.html',data='e')
+          return render_template('profil.html',data='e',L=L,mdp=mdp2)
      else:
-          return render_template('profil.html',data=1)
+          return render_template('profil.html',data=1,L=L,mdp=mdp2)
 
 @app.route('/validation')
 def validation_utilisateur():
@@ -302,6 +308,7 @@ def validation_utilisateur():
           return render_template('validation.html',data=data,admin=str(session.get("id")))
      else:
           return redirect('/')
+     
 
 @app.route('/<id>/<admin>/<niveau>')
 def update_niveau(id,admin,niveau):

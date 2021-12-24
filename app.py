@@ -160,15 +160,21 @@ def search_results(search):
 
 @app.route('/sub/<id>')
 def viewsub(id):
-     subs = sqlite3.connect('database.db')
-     cursor = subs.cursor()
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      if test_id_sub(id):
           cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
-          L=(cursor.fetchall(),id)
-          subs.close()
-          return render_template('viewsub.html',data=L)
+          data = cursor.fetchall()
+          #Test de si l'utilisateur est abonné ou non au projet
+          abonne = False
+          cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,session.get('id')))
+          l = cursor.fetchall()
+          if l != []:
+               abonne = True
+          db.close()
+          return render_template('viewsub.html',data=data,id=id,abonne=abonne)
      else:
-          subs.close()
+          db.close()
           return redirect('/')
 
 @app.route("/<id>/abonnement")
@@ -184,6 +190,18 @@ def abonnement(id):
           db.close()
           return redirect('/')
 
+@app.route('/<id>/desabonnement')
+def desabonnement(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_id_sub(id):
+          cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
+          db.commit()
+          db.close()
+          return redirect(url_for('viewsub',id=id))
+     else :
+          db.close()
+          return redirect('/')
 
      
 

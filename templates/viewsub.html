@@ -11,7 +11,7 @@
       <a class="nav-link active" aria-current="page" href="#">Description</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" aria-current="page" href="/sub/{{ data[1] }}/post">Posts</a>     
+      <a class="nav-link" aria-current="page" href="/sub/{{ id }}/post">Posts</a>     
     </li>
     <li class="nav-item">
       <a class="nav-link disabled">Calendrier</a>
@@ -21,11 +21,15 @@
     </li>
   
 </ul>
-<h1 class="titreSub " style = "margin:auto; padding: 20px;">{{data[0][0][0]}}</h1>
+<h1 class="titreSub " style = "margin:auto; padding: 20px;">{{data[0][0]}}</h1>
 <body style = "background-color: rgb(73,73,73);">
-  <p class="descriptionSub" style = "margin: auto; width: 40rem;background-color: rgb(73,73,73);">{{data[0][0][1]}}</p>
+  <p class="descriptionSub" style = "margin: auto; width: 40rem;background-color: rgb(73,73,73);">{{data[0][1]}}</p>
   <div class="col text-center">
-    <a class = "btn btn-block btn-secondary" href='/{{data[1]}}/abonnement' >S'abonner</a>
+    {% if abonne %}
+      <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+    {% else %}
+      <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
+    {% endif %}
   </div>
 </body>
 {% endblock %}

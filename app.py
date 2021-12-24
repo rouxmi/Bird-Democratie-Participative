@@ -121,7 +121,7 @@ def post():
      cursor = db.cursor()
      id=session.get('id')
      cursor.execute("""
-     INSERT INTO subs(nom,posté_par,mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+     INSERT INTO subs(nom,créé_par,mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
      db.commit()
      db.close()
      return redirect('/')
@@ -163,16 +163,22 @@ def viewsub(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_id_sub(id):
-          cursor.execute("SELECT nom,description FROM subs WHERE numéro_projet=%s;" % id)
+          cursor.execute("SELECT nom,description,créé_par FROM subs WHERE numéro_projet=%s;" % id)
           data = cursor.fetchall()
-          #Test de si l'utilisateur est abonné ou non au projet
-          abonne = False
-          cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,session.get('id')))
-          l = cursor.fetchall()
-          if l != []:
-               abonne = True
-          db.close()
-          return render_template('viewsub.html',data=data,id=id,abonne=abonne)
+          user_id = session.get('id')
+          #Tes si l'utilisateur est le créateur du projet
+          if data[0][2] == str(user_id) :
+               db.close()
+               return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None)
+          else :
+               #Test de si l'utilisateur est abonné ou non au projet
+               abonne = False
+               cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,session.get('id')))
+               l = cursor.fetchall()
+               if l != []:
+                    abonne = True
+               db.close()
+               return render_template('viewsub.html',data=data,id=id,owner=False,abonne=abonne)
      else:
           db.close()
           return redirect('/')
@@ -203,7 +209,20 @@ def desabonnement(id):
           db.close()
           return redirect('/')
 
-     
+
+@app.route('/<id>/participants')
+def demande_participation(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_id_sub(id):
+          cursor.execute("SELECT utilisateur FROM demande_participation WHERE sub=?",(id,))
+          users = cursor.fetchall()
+          db.close()
+          return render_template('participants.html',id=id,users=users)
+     else :
+          db.close()
+          return redirect('/')
+
 
 @app.route('/sub/<id>/post')
 def viewpost(id):

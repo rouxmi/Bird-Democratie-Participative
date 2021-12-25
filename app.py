@@ -172,20 +172,35 @@ def viewsub(id):
      if test_id_sub(id):
           cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
           data = cursor.fetchall()
+          cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
+          nb_abonnes = cursor.fetchall()[0]
           user_id = session.get('id')
           #Tes si l'utilisateur est le créateur du projet
           if data[0][2] == user_id :
                db.close()
-               return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None)
+               return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None,nb_abonnes=nb_abonnes,participant = True)
           else :
                #Test de si l'utilisateur est abonné ou non au projet
                abonne = False
+               participant = False
+               demande = False
                cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,session.get('id')))
                l = cursor.fetchall()
                if l != []:
                     abonne = True
+                    #Test si l'utilisateur participe au projet
+                    cursor.execute("SELECT * FROM participants WHERE sub=? AND utilisateur = ?",(id,session.get('id')))
+                    l2 = cursor.fetchall()
+                    if l2 != []:
+                         participant = True
+                    else:
+                         #Test si l'utilisateur a déjà fait une demande de participation
+                         cursor.execute("SELECT * FROM demande_participation WHERE sub=? AND utilisateur = ?",(id,session.get('id')))
+                         l3 = cursor.fetchall()
+                         if l3 != []:
+                              demande = True
                db.close()
-               return render_template('viewsub.html',data=data,id=id,owner=False,abonne=abonne)
+               return render_template('viewsub.html',data=data,id=id,owner=False,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande)
      else:
           db.close()
           return redirect('/')
@@ -217,18 +232,33 @@ def desabonnement(id):
           return redirect('/')
 
 
-@app.route('/sub/<id>/participants')
+@app.route('/<id>/demande_participation')
 def demande_participation(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_id_sub(id):
-          cursor.execute("SELECT utilisateur FROM demande_participation WHERE sub=?",(id,))
-          users = cursor.fetchall()
+          cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
+          db.commit()
           db.close()
-          return render_template('participants.html',id=id,users=users)
+          return redirect(url_for('viewsub',id=id))
      else :
           db.close()
           return redirect('/')
+
+@app.route('/<id>/annuler_participation')
+def annuler_participation(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_id_sub(id):
+          cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
+          db.commit()
+          db.close()
+          return redirect(url_for('viewsub',id=id))
+     else :
+          db.close()
+          return redirect('/')
+
+
 
 
 @app.route('/sub/<id>/post')

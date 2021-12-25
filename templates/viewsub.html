@@ -34,20 +34,31 @@
 <body style = "background-color: rgb(73,73,73);">
   <div class="container">
     <div class = "row">
-      <div class = "col-3 text-center" style="height: 200px;">
+      <div class = "col text-center" style="height: 200px;">
         <p class="descriptionSub"><strong>Créateur du projet</strong></p>
-        <p class = "descriptionSub">{{data[0][3]}} {{data[0][4]}}</p>
+        <p class = "descriptionSub">{{data[0][4]}} {{data[0][3]}}</p>
       </div>
       <div class = "col-6 text-center descriptionSub" style = "height: 200px; ">{{data[0][1]}}</div>
-      <div class = "col-3 text-center" style = "height: 200px;">
+      <div class = "col text-center" style = "height: 200px;">
+        <p class = "descriptionSub"> Nombre d'abonnés  : {{nb_abonnes[0]}}</p>
         {% if owner %}
+        <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
+        <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
         {% else %}
           {% if abonne %}
-          <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+            {% if participant %}
+            <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
+            <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
+            {% else %}
+            <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
+            <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+            {% endif %}
           {% else %}
           <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
+          <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
           {% endif %}
         {% endif %}
+        
       </div>
     </div>
   </div>
@@ -55,9 +66,35 @@
 
 </body>
 <body style = "background-color: rgb(73,73,73);">
-  <h1 class= "text-center" style = "margin:auto; padding: 20px;">Les participants</h1>
-  <div class = "col-6 text-center">
-
+  <div class = "container">
+    <div clas="row">
+      <h1 class= "text-center" style = "margin:auto; padding: 20px;">Les participants</h1>
+    </div>
+    <div class = "row">
+      <div class = "col-5"></div>
+      <div class = "col-2 text-center">
+      {% if owner %}
+      <a class = "btn btn-block btn-secondary " >Modifier</a>
+      {% else %}
+        {% if abonne %}
+          {% if participant %}
+          <a class = "btn btn-block btn-secondary " href='/{{id}}/annuler_participation' >Ne plus participer</a>
+          {% else %}
+            {% if demande %}
+            <a class = "btn btn-block btn-secondary disabled " href='/{{id}}/demande_participation' >Participer</a>
+            <p> Vous avez déjà envoyer une demande de participation. En attente de l'accord du créateur du projet</p>
+            {% else %}
+            <a class = "btn btn-block btn-secondary" href='/{{id}}/demande_participation' >Participer</a>
+            {% endif %}
+          {% endif %}
+        {% else %}
+        <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/demande_participation' >Participer</a>
+        <p>Veuillez d'abord vous abonner avant de demander à participer au projet</p>
+        {% endif %}
+      {% endif %}
+      </div>
+      <div class="col-5"></div>
+    </div>
   </div>
 </body>
 {% endblock %}

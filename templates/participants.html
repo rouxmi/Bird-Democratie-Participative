@@ -2,9 +2,47 @@
 
 {% block title %}
 <meta charset="UTF-8">
-<title>Demandes</title>
+<title>Participants</title>
 {% endblock %}
 
 {% block content %}
+
+<ul class="nav nav-tabs navbar-dark bg-dark">
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="/sub/{{ id }} ">Description</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="/sub/{{ id }}/post">Posts</a>     
+    </li>
+    <li class="nav-item">
+      <a class="nav-link">Calendrier</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link">Chat</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active">Demande de participation</a>
+    </li>
+  
+</ul>
+
+<div class="container text-center">
+    <div class = "row">
+        <h1> Demande de participations</h1>
+    </div>
+    <div class = "row">
+        {% for item in data %}
+        <ul class="col-4">
+            <li>Nom : {{item[1]}}</li>
+            <li>Prénom : {{item[2]}}</li>
+        </ul>
+        <div class="col-4">
+            <a class="btn btn-secondary" href="/{{id}}/accepter/{{item[0]}}">Accepter</a>
+            <a class="btn btn-secondary" href="/{{id}}/refuser/{{item[0]}}">Refuser </a>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
 
 {% endblock %}

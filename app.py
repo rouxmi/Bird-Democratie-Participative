@@ -286,8 +286,10 @@ def viewpost(id):
           comments={}
           for row in L[0]:
                idpost=row[0]
-               cursor.execute('SELECT contenu,posté_par FROM commentaires WHERE id_post=?',(idpost,))
-               comments[idpost]=cursor.fetchall()
+               cursor.execute('SELECT contenu,nom,prénom FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+               comments[idpost]=cursor.fetchall()[0]
+               print(comments)
+               print(comments[idpost])
           return render_template('viewpost.html', data=L,comments=comments)
      else:
           db.close()

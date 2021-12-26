@@ -174,33 +174,35 @@ def viewsub(id):
           data = cursor.fetchall()
           cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
           nb_abonnes = cursor.fetchall()[0]
+          cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE id_user=utilisateur AND sub=?",(id,))
+          liste_participants=cursor.fetchall()
           user_id = session.get('id')
           #Tes si l'utilisateur est le créateur du projet
           if data[0][2] == user_id :
                db.close()
-               return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None,nb_abonnes=nb_abonnes,participant = True)
+               return render_template('viewsub.html',data=data,id=id,owner=True,abonne = None,nb_abonnes=nb_abonnes,participant = True,liste_participants=liste_participants)
           else :
                #Test de si l'utilisateur est abonné ou non au projet
                abonne = False
                participant = False
                demande = False
-               cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,session.get('id')))
+               cursor.execute("SELECT * FROM abonnements WHERE sub=? AND utilisateur = ? ;",(id,user_id))
                l = cursor.fetchall()
                if l != []:
                     abonne = True
                     #Test si l'utilisateur participe au projet
-                    cursor.execute("SELECT * FROM participants WHERE sub=? AND utilisateur = ?",(id,session.get('id')))
+                    cursor.execute("SELECT * FROM participants WHERE sub=? AND utilisateur = ?",(id,user_id))
                     l2 = cursor.fetchall()
                     if l2 != []:
                          participant = True
                     else:
                          #Test si l'utilisateur a déjà fait une demande de participation
-                         cursor.execute("SELECT * FROM demande_participation WHERE sub=? AND utilisateur = ?",(id,session.get('id')))
+                         cursor.execute("SELECT * FROM demande_participation WHERE sub=? AND utilisateur = ?",(id,user_id))
                          l3 = cursor.fetchall()
                          if l3 != []:
                               demande = True
                db.close()
-               return render_template('viewsub.html',data=data,id=id,owner=False,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande)
+               return render_template('viewsub.html',data=data,id=id,owner=False,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande,liste_participants=liste_participants)
      else:
           db.close()
           return redirect('/')

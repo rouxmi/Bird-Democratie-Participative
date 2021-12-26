@@ -472,8 +472,10 @@ def post_commentaire(id):
           cursor = db.cursor()
           cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post) VALUES (?,?,?)',(content['commentaire'],session.get('id'),id))
           db.commit()
+          cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
+          id_sub = cursor.fetchall()
           db.close()
-     return redirect('/sub/'+str(id)+'/post')
+     return redirect('/sub/'+str(id_sub)+'/post')
 
 if __name__=='__main__':
      app.run(debug=1)

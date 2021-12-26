@@ -45,7 +45,7 @@ def test_id_sub(id):
 def is_owner(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT * FROM subs WHERE numéro_projet=?;""",(id,))
+     cursor.execute(""" SELECT * FROM subs WHERE numéro_projet=? AND créé_par=?""",(id,user))
      test=cursor.fetchall()
      if test!=[]:
           return True

@@ -42,6 +42,18 @@ def test_id_sub(id):
           return False
 
 
+def is_owner(id,user):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT * FROM subs WHERE numéro_projet=?;""",(id,))
+     test=cursor.fetchall()
+     if test!=[]:
+          return True
+     else: 
+          return False
+
+
+
 @app.route('/')
 def login():
      if not session.get("id"):
@@ -458,7 +470,7 @@ def post_commentaire(id):
      if request.method=='POST':
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post) VALUES (?,?,?)',(content['commentaire'],str(session.get('id')),id))
+          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post) VALUES (?,?,?)',(content['commentaire'],session.get('id'),id))
           db.commit()
           db.close()
      return redirect('/sub/'+str(id)+'/post')

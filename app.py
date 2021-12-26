@@ -355,6 +355,45 @@ def updatecompteurpostnegatif(id):
           db.close()
           return redirect('/')
 
+
+@app.route('/sub/<id>/demandes')
+def demande(id):
+     if test_id_sub(id):
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
+          data=cursor.fetchall()
+          db.close()
+          return render_template("participants.html",id=id,data=data)
+     else:
+          return redirect('/')
+
+@app.route('/<id>/accepter/<user>')
+def accepter(id,user):
+     if test_id_sub(id):
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute("INSERT INTO participants(sub,utilisateur) VALUES (?,?)",(id,user))
+          cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
+          db.commit()
+          db.close()
+          return redirect(url_for('demande',id=id))
+     else:
+          return redirect('/')
+
+@app.route('/<id>/refuser/<user>')
+def refuser(id,user):
+     if test_id_sub(id):
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
+          db.commit()
+          db.close()
+          return redirect(url_for(demande,id=id))
+     else:
+          return redirect('/')
+
+
 @app.route('/profil')
 def voirleprofil():
      db = sqlite3.connect('database.db')
@@ -390,18 +429,18 @@ def validation_utilisateur():
 def update_niveau(id,admin,niveau):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(id)))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id))
      niv=cursor.fetchall()
      cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(admin)))
      user=cursor.fetchall()
      if user[0][0]=='A' and niv!=[]:
           if niveau=='Admin':
-               cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE id_user=?",(str(id),))
+               cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE id_user=?",(id,))
                db.commit()
                db.close()
                return redirect('/validation')
           elif niveau=='Validé':
-               cursor.execute("UPDATE utilisateurs SET niveau='V' WHERE id_user=?",(str(id),))
+               cursor.execute("UPDATE utilisateurs SET niveau='V' WHERE id_user=?",(id,))
                db.commit()
                db.close()
                return redirect('/validation')

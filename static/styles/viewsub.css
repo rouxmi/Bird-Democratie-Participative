@@ -1,0 +1,16 @@
+body {
+    background-color: rgb(73,73,73);
+}
+
+h1 {
+    text-align: center;
+    background-color: rgb(73, 73, 73);
+    font-size: 50px;
+    margin:auto; 
+    padding: 20px
+}
+
+p {
+    font-size: 25px;
+}
+

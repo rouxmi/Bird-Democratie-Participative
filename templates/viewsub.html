@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href='/static/styles/viewsub.css' />
+
 <ul class="nav nav-tabs navbar-dark bg-dark">
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">Description</a>
@@ -36,51 +38,68 @@
 
 </ul>
 
+
 <h1 class="titreSub " style = "margin:auto; padding: 20px;">{{data[0][0]}}</h1>
 <body style = "background-color: rgb(73,73,73);">
-  <div class="container">
+  <div class="container" style="height: auto;">
     <div class = "row">
-      <div class = "col text-center" style="height: 200px;">
-        <p class="descriptionSub"><strong>Créateur du projet</strong></p>
-        <p class = "descriptionSub">{{data[0][4]}} {{data[0][3]}}</p>
+      <div class = "col">
+        <div class = "card">
+          <div class = "card-body">
+            <h3 class =  "card-title">Créateur du projet</h3>
+            <p class = "card-text">{{data[0][4]}} {{data[0][3]}}</p>
+          </div>
+        </div>
       </div>
-      <div class = "col-6 text-center descriptionSub" style = "height: 200px; ">{{data[0][1]}}</div>
-      <div class = "col text-center" style = "height: 200px;">
-        <p class = "descriptionSub"> Nombre d'abonnés  : {{nb_abonnes[0]}}</p>
-        {% if owner %}
-        <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
-        <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
-        {% else %}
-          {% if abonne %}
-            {% if participant %}
+      <div class = "col-6">
+        <div class = "card">
+          <div class = "card-body">
+            <h3 class =  "card-title">Description</h3>
+            <p class = "card-text">{{data[0][1]}}</p>
+          </div>
+        </div>
+      </div>
+      <div class = "col">
+        <div class = "card">
+          <div class = "card-body">
+            <h4 class = "card-title">Nombre d'abonnés  : {{nb_abonnes[0]}}</h4>
+            {% if owner %}
             <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
             <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
             {% else %}
-            <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
-            <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+              {% if abonne %}
+                {% if participant %}
+                <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
+                <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
+                {% else %}
+                <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/abonnement' >S'abonner</a>
+                <a class = "btn btn-block btn-secondary" href='/{{id}}/desabonnement' >Se désabonner</a>
+                {% endif %}
+              {% else %}
+              <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
+              <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
+              {% endif %}
             {% endif %}
-          {% else %}
-          <a class = "btn btn-block btn-secondary" href='/{{id}}/abonnement' >S'abonner</a>
-          <a class = "btn btn-block btn-secondary disabled" href='/{{id}}/desabonnement' >Se désabonner</a>
-          {% endif %}
-        {% endif %}
-        
+          </div>
+        </div>
       </div>
     </div>
   </div>
  
 
 </body>
-<body style = "background-color: rgb(73,73,73);">
+<body>
   <div class = "container">
-    <div class="row text-center">
+    <div class="row">
       <h1 style = "margin:auto; padding: 20px;">Les participants</h1>
+      <div class = "col">
       {% if owner %}
       <a class = "btn btn-block btn-secondary" >Modifier</a>
       {% endif %}
+      </div>
     </div>
     <div class = "row">
-      <div class = "col text-center">
+      <div class = "col">
       {% if owner %}
       {% else %}  
         {% if abonne %}
@@ -102,12 +121,13 @@
       </div>
     </div>
     <div class="row">
-      {% for participant in liste_participants %}
-      <div class="col">
-        <p>Nom : {{participant[1]}}</p>
-        <p>Prénom : {{participant[2]}}</p>
+      <div class = "col-sm-4">
+        <ul class = "list-group list-group-flush">
+          {% for participant in liste_participants %}
+          <li class="list-group-item">{{participant[2]}} {{participant[1]}}</li>
+          {% endfor %}
+        </ul>
       </div>
-      {% endfor %}
     </div>
   </div>
 </body>

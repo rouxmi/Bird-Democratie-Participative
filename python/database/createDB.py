@@ -45,4 +45,12 @@ def createDButilisateurs():
     db.close()
 
 
-createDButilisateurs()
+def createDBcommentaires():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute("CREATE TABLE commentaires(id_comment INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER) ")
+    db.commit()
+    db.close()
+
+
+createDBcommentaires()

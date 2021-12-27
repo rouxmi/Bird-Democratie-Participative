@@ -53,4 +53,4 @@ def createDBcommentaires():
     db.close()
 
 
-createDBcommentaires()
+createDBposts()

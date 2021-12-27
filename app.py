@@ -488,5 +488,13 @@ def post_commentaire(id):
           db.close()
      return redirect('/sub/'+str(id_sub)+'/post')
 
+@app.route('/mesabonnements')
+def affichageabonnements():
+     return render_template('mesabonnements.html')
+
+@app.route('/mesprojets')
+def affichageprojets():
+     return render_template('mesprojets.html')
+
 if __name__=='__main__':
      app.run(debug=1)

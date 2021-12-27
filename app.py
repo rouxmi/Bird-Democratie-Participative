@@ -36,6 +36,7 @@ def test_id_sub(id):
      cursor = db.cursor()
      cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?;""",(id,))
      test=cursor.fetchall()
+     db.close()
      if test!=[]:
           return True
      else: 
@@ -47,6 +48,7 @@ def is_owner(id,user):
      cursor = db.cursor()
      cursor.execute(""" SELECT * FROM subs WHERE numéro_projet=? AND créé_par=?""",(id,user))
      test=cursor.fetchall()
+     db.close()
      if test!=[]:
           return True
      else: 
@@ -57,6 +59,7 @@ def est_abonne(id,user):
      cursor = db.cursor()
      cursor.execute(""" SELECT * FROM abonnements WHERE sub=? AND utilisateur=?""",(id,user))
      test=cursor.fetchall()
+     db.close()
      if test!=[]:
           return True
      else: 
@@ -67,6 +70,7 @@ def est_participant(id,user):
      cursor = db.cursor()
      cursor.execute(""" SELECT * FROM participants WHERE sub=? AND utilisateur=?""",(id,user))
      test=cursor.fetchall()
+     db.close()
      if test!=[]:
           return True
      else: 
@@ -77,10 +81,23 @@ def a_demande(id,user):
      cursor = db.cursor()
      cursor.execute(""" SELECT * FROM demande_participation WHERE sub=? AND utilisateur=?""",(id,user))
      test=cursor.fetchall()
+     db.close()
      if test!=[]:
           return True
      else: 
           return False
+
+def commentaire(id_com,user):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+     likeur=cursor.fetchall()
+     db.close()
+     if user not in likeur[0][0].split('/'):
+          return True
+     else: 
+          return False
+
 
 
 @app.route('/')
@@ -295,10 +312,15 @@ def viewpost(id):
           comments={}
           for row in L[0]:
                idpost=row[0]
-               cursor.execute('SELECT contenu,nom,prénom FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
-               comments[idpost]=cursor.fetchall()[0]
-               print(comments)
-               print(comments[idpost])
+               cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+               données=cursor.fetchall()   
+               if données!=[]:
+                    comments[idpost]=données
+                    for i in range(len(données)):
+                         données[i]+=(commentaire(données[i][4],str(session.get('id'))),) 
+               else:
+                    comments[idpost]=[]
+          db.close()
           return render_template('viewpost.html', data=L,comments=comments)
      else:
           db.close()
@@ -425,6 +447,7 @@ def voirleprofil():
      niveau=cursor.fetchall()
      cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
      L= cursor.fetchall()
+     db.close()
      mdp=L[0][3]
      mdp2=''
      for i in range(len(mdp)):
@@ -443,8 +466,10 @@ def validation_utilisateur():
      if niveau[0][0]=='A':
           cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
           data=cursor.fetchall()
+          db.close()
           return render_template('validation.html',data=data,admin=str(session.get("id")))
      else:
+          db.close()
           return redirect('/')
      
 
@@ -477,16 +502,17 @@ def update_niveau(id,admin,niveau):
 @app.route('/comment/<id>',methods=['post'])
 def post_commentaire(id):
      content=request.form.to_dict()
-     print(content)
+     user=str(session.get("id"))
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      if request.method=='POST':
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post) VALUES (?,?,?)',(content['commentaire'],session.get('id'),id))
+          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
           db.commit()
-          cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
-          id_sub = cursor.fetchall()
-          db.close()
-     return redirect('/sub/'+str(id_sub)+'/post')
+     cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
+     id_sub = cursor.fetchall()
+     db.close()
+     return redirect('/sub/'+str(id_sub[0][0])+'/post')
+
 
 @app.route('/mesabonnements')
 def affichageabonnements():
@@ -505,6 +531,22 @@ def affichageprojets():
      L=cursor.fetchall()
      db.close()
      return render_template('mesprojets.html',data=L)
+
+@app.route('/upvote/<id_com>')
+def upvote(id_com):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+     likeur=cursor.fetchall()
+     if str(session.get('id')) not in likeur[0][0].split('/'):
+          likeur=likeur[0][0]+'/'+str(session.get('id'))
+          cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
+          db.commit()
+     cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
+     id=cursor.fetchall()[0][0]
+     db.close()
+     return redirect('/sub/'+str(id)+'/post')
+
 
 if __name__=='__main__':
      app.run(debug=1)

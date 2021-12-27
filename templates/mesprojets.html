@@ -7,6 +7,23 @@
 
 {% block content %}
 
-<h1>coucou les projets</h1>
+<link rel="stylesheet" href='/static/styles/parcourir.css' />
+<body>
+<h1 style='margin-top: 20px;
+            text-align: center;'>Mes Projets</h1>
+    
+<div class="wrapper">
+    {% for item in data %}
+    <a href='/sub/{{ item[O] }}' class="list-group-item-action flex-column align-items-start">
+    <div class='projets'>
+        <div class="titre">{{ item[1] }}</div>
+        <p style='margin-top: 20px; text-align: center;'> Mots-clés : {{ item[2] }} </p>
+        <p style='margin-top: 20px; text-align: center;'> Description : {{ item[3] }} </p>
+        <p style='margin-top: 20px; text-align: center;'> Date de création : {{ item[4] }} </p>
+    </div>
+    </a>
+    {% endfor %}
+</div>
+</body>
 
 {% endblock %}

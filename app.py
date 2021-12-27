@@ -211,11 +211,11 @@ def viewsub(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_id_sub(id):
-          cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
+          cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND crée_par=créé_par;" % id)
           data = cursor.fetchall()
           cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
           nb_abonnes = cursor.fetchall()[0]
-          cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE id_user=utilisateur AND sub=?",(id,))
+          cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE crée_par=utilisateur AND sub=?",(id,))
           liste_participants=cursor.fetchall()
           user_id = session.get('id')
           owner = is_owner(id,user_id)
@@ -295,7 +295,7 @@ def viewpost(id):
           comments={}
           for row in L[0]:
                idpost=row[0]
-               cursor.execute('SELECT contenu,nom,prénom FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+               cursor.execute('SELECT contenu,nom,prénom FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=crée_par' ,(idpost,))
                comments[idpost]=cursor.fetchall()[0]
                print(comments)
                print(comments[idpost])
@@ -384,7 +384,7 @@ def demande(id):
      if test_id_sub(id):
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
+          cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE crée_par=utilisateur AND sub = ?",(id,))
           data=cursor.fetchall()
           db.close()
           return render_template("participants.html",id=id,data=data)
@@ -421,9 +421,9 @@ def refuser(id,user):
 def voirleprofil():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE crée_par=?",(str(session.get("id"))))
      niveau=cursor.fetchall()
-     cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE crée_par=?",(str(session.get("id"))))
      L= cursor.fetchall()
      mdp=L[0][3]
      mdp2=''
@@ -438,10 +438,10 @@ def voirleprofil():
 def validation_utilisateur():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE crée_par=?",(str(session.get("id"))))
      niveau=cursor.fetchall()
      if niveau[0][0]=='A':
-          cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
+          cursor.execute('SELECT niveau,crée_par,nom,prénom FROM utilisateurs')
           data=cursor.fetchall()
           return render_template('validation.html',data=data,admin=str(session.get("id")))
      else:
@@ -452,18 +452,18 @@ def validation_utilisateur():
 def update_niveau(id,admin,niveau):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE crée_par=?",(id))
      niv=cursor.fetchall()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(admin)))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE crée_par=?",(str(admin)))
      user=cursor.fetchall()
      if user[0][0]=='A' and niv!=[]:
           if niveau=='Admin':
-               cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE id_user=?",(id,))
+               cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE crée_par=?",(id,))
                db.commit()
                db.close()
                return redirect('/validation')
           elif niveau=='Validé':
-               cursor.execute("UPDATE utilisateurs SET niveau='V' WHERE id_user=?",(id,))
+               cursor.execute("UPDATE utilisateurs SET niveau='V' WHERE crée_par=?",(id,))
                db.commit()
                db.close()
                return redirect('/validation')
@@ -490,11 +490,17 @@ def post_commentaire(id):
 
 @app.route('/mesabonnements')
 def affichageabonnements():
+     
      return render_template('mesabonnements.html')
 
 @app.route('/mesprojets')
 def affichageprojets():
-     return render_template('mesprojets.html')
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT numéro_projet, nom, mots_clés, description, création FROM subs WHERE créé_par=?",(str(session.get("id"))))
+     L=cursor.fetchall()
+     db.close()
+     return render_template('mesprojets.html',data=L)
 
 if __name__=='__main__':
      app.run(debug=1)

@@ -51,6 +51,3 @@ def createDBcommentaires():
     cursor.execute("CREATE TABLE commentaires(id_comment INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER) ")
     db.commit()
     db.close()
-
-
-createDBposts()

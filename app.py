@@ -272,7 +272,8 @@ def recom():
           db.close()
           return render_template('recommandation.html',data=data)
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route('/sub/<id>')
 def viewsub(id):
@@ -297,7 +298,8 @@ def viewsub(id):
                db.close()
                return redirect('/')
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route("/<id>/abonnement")
 def abonnement(id):
@@ -329,7 +331,8 @@ def desabonnement(id):
                db.close()
                return redirect('/')
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 
 @app.route('/<id>/demande_participation')
@@ -346,7 +349,8 @@ def demande_participation(id):
                db.close()
                return redirect('/')
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route('/<id>/annuler_participation')
 def annuler_participation(id):
@@ -362,7 +366,7 @@ def annuler_participation(id):
                db.close()
                return redirect('/')
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
 
 
@@ -393,7 +397,7 @@ def viewpost(id):
                db.close()
                return redirect('/')
      else:
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
 
 @app.route('/sub/<id>/creationpost')
@@ -531,7 +535,8 @@ def voirleprofil():
                return render_template('profil.html',data=1,L=L,mdp=mdp2)
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route('/validation')
 def validation_utilisateur():
@@ -550,7 +555,8 @@ def validation_utilisateur():
                return redirect('/')
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
      
 
 @app.route('/<id>/<admin>/<niveau>')
@@ -595,7 +601,8 @@ def post_commentaire(id):
           return redirect('/sub/'+str(id_sub[0][0])+'/post')
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 
 @app.route('/mesabonnements')
@@ -609,7 +616,8 @@ def affichageabonnements():
           return render_template('mesabonnements.html',data=L)
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route('/mesprojets')
 def affichageprojets():
@@ -622,7 +630,8 @@ def affichageprojets():
           return render_template('mesprojets.html',data=L)
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 @app.route('/upvote/<id_com>')
 def upvote(id_com):
@@ -641,7 +650,8 @@ def upvote(id_com):
           return redirect('/sub/'+str(id)+'/post')
      else:
           db.close()
-          return redirect('/')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 
 if __name__=='__main__':

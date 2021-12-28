@@ -1,13 +1,13 @@
 import sqlite3
 
 def recommandation(id):
-    subs = sqlite3.connect('sub.db')
+    subs = sqlite3.connect('database.db')
     cursor = subs.cursor()
-    query='''SELECT Nom,Mots_clés FROM table1 WHERE Numéro_projet=?'''
-    cursor.execute(query,id)
+    query='''SELECT Nom,Mots_clés FROM subs WHERE Numéro_projet=?'''
+    cursor.execute(query,(id,))
     L=cursor.fetchall()
-    query='''SELECT Numéro_projet,Nom,Mots_clés FROM table1 WHERE NOT Numéro_projet=?'''
-    cursor.execute(query,id)
+    query='''SELECT Numéro_projet,Nom,Mots_clés FROM subs WHERE NOT Numéro_projet=?'''
+    cursor.execute(query,(id,))
     L2=cursor.fetchall()
     mots=L[0][1].replace(' ','').split(',')+L[0][0].replace(' ','').split(',')
     numero_projet=[]

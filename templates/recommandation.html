@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+<meta charset="UTF-8">
+<title>Parcourir</title>
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href='/static/styles/parcourir.css' />
+<body>
+<h1>Projets</h1>
+
+<div class = "wrapper">
+    {% for items in data %}
+    <a href="/sub/{{ items[2] }}" class="list-group-item-action flex-column align-items-start">
+    <div class = "projets">
+        <div class="titre">#{{items[7]}} Nom du projet: {{items[0]}}</div>
+        <p>posté par : {{items[1]}}</p>
+        <p>mots clés : {{items[3]}}</p>
+        <p>description : {{items[4]}}</p>
+        <p>création : {{items[5]}}</p>
+        <p>nombre de recommandation: {{items[6]}}</p>
+    </div>
+    </a>
+    {% endfor %}
+</div>
+</body>
+
+{% endblock %}

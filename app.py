@@ -1,8 +1,10 @@
+import re
 import sqlite3
 from sqlite3.dbapi2 import Cursor
 import os 
 from flask import Flask, render_template, request, url_for,redirect,flash,session
 import datetime
+from recommandation import recommandation
 from werkzeug.utils import secure_filename
 
 
@@ -44,11 +46,22 @@ def test_id_sub(id):
      
 
 def test_login():
-     print(session.get('id'))
      if session.get("id")!=None:
           return True
      else:
           return False
+     
+def test_verif():
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT niveau FROM utilisateur WHERE id_user""",(str(session.get('id'))))
+     test=cursor.fetchall()[0][0]
+     db.close()
+     if test=='B':
+          return False
+     else:
+          return True
+
 
 
 def is_owner(id,user):
@@ -230,6 +243,36 @@ def search_results(search):
          return render_template('resultat.html',resultat='')
      else:
          return render_template('resultat.html', resultat=resultat)
+
+@app.route('/recommandation')
+def recom():
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          cursor.execute("SELECT sub FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+          abonnement=cursor.fetchall()
+          cursor.execute("SELECT numéro_projet FROM subs WHERE créé_par=?",(str(session.get("id"))))
+          abonnement+=cursor.fetchall()
+          total={}
+          for i in range(len(abonnement)):
+               abonnement[i]=abonnement[i][0]
+          for i in range(len(abonnement)):
+               temp=recommandation(abonnement[i])
+               for j in range(len(temp)):
+                    if temp[j][0] not in abonnement:
+                         if temp[j][0] in total:
+                              total[temp[j][0]]+=temp[j][1]
+                         else:
+                              total[temp[j][0]]=temp[j][1]
+          result=list(sorted(total.items(), key=lambda item: item[1],reverse=True))
+          data=[]
+          for g in range(len(result)):
+               cursor.execute("SELECT * FROM subs WHERE numéro_projet=?",(result[g][0],))
+               data.append(cursor.fetchall()[0]+(result[g][1],g+1))
+          db.close()
+          return render_template('recommandation.html',data=data)
+     else:
+          return redirect('/')
 
 @app.route('/sub/<id>')
 def viewsub(id):

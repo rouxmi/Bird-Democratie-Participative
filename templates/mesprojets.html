@@ -14,7 +14,7 @@
     
 <div class="wrapper">
     {% for item in data %}
-    <a href='/sub/{{ item[O] }}' class="list-group-item-action flex-column align-items-start">
+    <a href='/sub/{{ item[0] }}' class="list-group-item-action flex-column align-items-start">
     <div class='projets'>
         <div class="titre">{{ item[1] }}</div>
         <p style='margin-top: 20px; text-align: center;'> Mots-clés : {{ item[2] }} </p>

@@ -680,6 +680,14 @@ def affichageabonnements():
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
+'''@app.route('/mesabonnements')
+def affichageabonnements():
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+     L=cursor.fetchall()
+     db.close()
+     return render_template('mesabonnements.html',data=L)'''
 
 @app.route('/mesprojets')
 def affichageprojets():

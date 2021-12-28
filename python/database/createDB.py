@@ -51,3 +51,10 @@ def createDBcommentaires():
     cursor.execute("CREATE TABLE commentaires(id_comment INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER) ")
     db.commit()
     db.close()
+
+def createDBtchat():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute("CREATE TABLE tchat(id INTEGER PRIMARY KEY AUTOINCREMENT,numsub INTEGER,idpostant INTEGER,message TEXT,date DATETIME) ")
+    db.commit()
+    db.close()

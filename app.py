@@ -6,6 +6,9 @@ from flask import Flask, render_template, request, url_for,redirect,flash,sessio
 import datetime
 from recommandation import recommandation
 from werkzeug.utils import secure_filename
+import time
+
+
 
 
 app = Flask(__name__)
@@ -20,6 +23,7 @@ app.config["IMAGE_UPLOADS"] = "static/img/uploads"
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG", "GIF"]
 
 app.secret_key=os.urandom(12)
+
 
 def allowed_image(filename):
 
@@ -642,6 +646,26 @@ def upvote(id_com):
      else:
           db.close()
           return redirect('/')
+
+@app.route("/sub/<numsub>/tchat", methods=["GET","POST"])
+def tchat(numsub):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     idpostant=session.get('id')
+     cursor.execute("""SELECT * FROM tchat WHERE numsub = ?""",(numsub,))
+     L=cursor.fetchall()
+     cursor.execute("""SELECT prénom FROM utilisateurs""")
+     utilisateurs=cursor.fetchall()
+     if request.method=='POST':
+          now = time.localtime(time.time())
+          message = request.form['message']
+          cursor.execute("""
+          INSERT INTO tchat(numsub,idpostant,message,date) values(?,?,?,?)""",(numsub,idpostant,str(message),time.strftime("%y/%m/%d %H:%M", now)))
+          db.commit()
+     db.close()
+     data=(utilisateurs,L)
+     print(data[1][0][1])
+     return render_template('tchat.html',data=data)
 
 
 if __name__=='__main__':

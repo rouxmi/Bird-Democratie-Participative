@@ -41,6 +41,14 @@ def test_id_sub(id):
           return True
      else: 
           return False
+     
+
+def test_login():
+     print(session.get('id'))
+     if session.get("id")!=None:
+          return True
+     else:
+          return False
 
 
 def is_owner(id,user):
@@ -225,77 +233,92 @@ def search_results(search):
 
 @app.route('/sub/<id>')
 def viewsub(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
-          data = cursor.fetchall()
-          cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
-          nb_abonnes = cursor.fetchall()[0]
-          cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE id_user=utilisateur AND sub=?",(id,))
-          liste_participants=cursor.fetchall()
-          user_id = session.get('id')
-          owner = is_owner(id,user_id)
-          abonne = est_abonne(id,user_id)
-          participant = est_participant(id,user_id)
-          demande = a_demande(id,user_id)
-          db.close()
-          return render_template('viewsub.html',data=data,id=id,owner=owner,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande,liste_participants=liste_participants)
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
+               data = cursor.fetchall()
+               cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
+               nb_abonnes = cursor.fetchall()[0]
+               cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE id_user=utilisateur AND sub=?",(id,))
+               liste_participants=cursor.fetchall()
+               user_id = session.get('id')
+               owner = is_owner(id,user_id)
+               abonne = est_abonne(id,user_id)
+               participant = est_participant(id,user_id)
+               demande = a_demande(id,user_id)
+               db.close()
+               return render_template('viewsub.html',data=data,id=id,owner=owner,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande,liste_participants=liste_participants)
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
           return redirect('/')
 
 @app.route("/<id>/abonnement")
 def abonnement(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
-          db.commit()
-          db.close()
-          return redirect(url_for('viewsub',id=id))
-     else :
-          db.close()
+     if test_login() :
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
+               db.commit()
+               db.close()
+               return redirect(url_for('viewsub',id=id))
+          else :
+               db.close()
+               return redirect('/')
+     else:
           return redirect('/')
 
 @app.route('/<id>/desabonnement')
 def desabonnement(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
-          db.commit()
-          db.close()
-          return redirect(url_for('viewsub',id=id))
-     else :
-          db.close()
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
+               db.commit()
+               db.close()
+               return redirect(url_for('viewsub',id=id))
+          else :
+               db.close()
+               return redirect('/')
+     else:
           return redirect('/')
 
 
 @app.route('/<id>/demande_participation')
 def demande_participation(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
-          db.commit()
-          db.close()
-          return redirect(url_for('viewsub',id=id))
-     else :
-          db.close()
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
+               db.commit()
+               db.close()
+               return redirect(url_for('viewsub',id=id))
+          else :
+               db.close()
+               return redirect('/')
+     else:
           return redirect('/')
 
 @app.route('/<id>/annuler_participation')
 def annuler_participation(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
-          db.commit()
-          db.close()
-          return redirect(url_for('viewsub',id=id))
-     else :
-          db.close()
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
+               db.commit()
+               db.close()
+               return redirect(url_for('viewsub',id=id))
+          else :
+               db.close()
+               return redirect('/')
+     else:
           return redirect('/')
 
 
@@ -303,27 +326,30 @@ def annuler_participation(id):
 
 @app.route('/sub/<id>/post')
 def viewpost(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          query = '''SELECT id_post,titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
-          cursor.execute(query,(id,))
-          L =(cursor.fetchall(),id)
-          comments={}
-          for row in L[0]:
-               idpost=row[0]
-               cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
-               données=cursor.fetchall()   
-               if données!=[]:
-                    comments[idpost]=données
-                    for i in range(len(données)):
-                         données[i]+=(commentaire(données[i][4],str(session.get('id'))),) 
-               else:
-                    comments[idpost]=[]
-          db.close()
-          return render_template('viewpost.html', data=L,comments=comments)
+     if test_login():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               query = '''SELECT id_post,titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
+               cursor.execute(query,(id,))
+               L =(cursor.fetchall(),id)
+               comments={}
+               for row in L[0]:
+                    idpost=row[0]
+                    cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+                    données=cursor.fetchall()   
+                    if données!=[]:
+                         comments[idpost]=données
+                         for i in range(len(données)):
+                              données[i]+=(commentaire(données[i][4],str(session.get('id'))),) 
+                    else:
+                         comments[idpost]=[]
+               db.close()
+               return render_template('viewpost.html', data=L,comments=comments)
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
           return redirect('/')
 
 
@@ -403,39 +429,42 @@ def updatecompteurpostnegatif(id):
 
 @app.route('/sub/<id>/demandes')
 def demande(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      if test_id_sub(id):
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
           data=cursor.fetchall()
           db.close()
           return render_template("participants.html",id=id,data=data)
      else:
+          db.close()
           return redirect('/')
 
 @app.route('/<id>/accepter/<user>')
 def accepter(id,user):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      if test_id_sub(id):
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           cursor.execute("INSERT INTO participants(sub,utilisateur) VALUES (?,?)",(id,user))
           cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
           db.commit()
           db.close()
           return redirect(url_for('demande',id=id))
      else:
+          db.close()
           return redirect('/')
 
 @app.route('/<id>/refuser/<user>')
 def refuser(id,user):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
      if test_id_sub(id):
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
           db.commit()
           db.close()
           return redirect(url_for(demande,id=id))
      else:
+          db.close()
           return redirect('/')
 
 
@@ -443,31 +472,39 @@ def refuser(id,user):
 def voirleprofil():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
-     niveau=cursor.fetchall()
-     cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
-     L= cursor.fetchall()
-     db.close()
-     mdp=L[0][3]
-     mdp2=''
-     for i in range(len(mdp)):
-          mdp2+='*'
-     if niveau[0][0]=='A':
-          return render_template('profil.html',data='e',L=L,mdp=mdp2)
+     if test_login():
+          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+          niveau=cursor.fetchall()
+          cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+          L= cursor.fetchall()
+          db.close()
+          mdp=L[0][3]
+          mdp2=''
+          for i in range(len(mdp)):
+               mdp2+='*'
+          if niveau[0][0]=='A':
+               return render_template('profil.html',data='e',L=L,mdp=mdp2)
+          else:
+               return render_template('profil.html',data=1,L=L,mdp=mdp2)
      else:
-          return render_template('profil.html',data=1,L=L,mdp=mdp2)
+          db.close()
+          return redirect('/')
 
 @app.route('/validation')
 def validation_utilisateur():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
-     niveau=cursor.fetchall()
-     if niveau[0][0]=='A':
-          cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
-          data=cursor.fetchall()
-          db.close()
-          return render_template('validation.html',data=data,admin=str(session.get("id")))
+     if test_login():
+          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+          niveau=cursor.fetchall()
+          if niveau[0][0]=='A':
+               cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
+               data=cursor.fetchall()
+               db.close()
+               return render_template('validation.html',data=data,admin=str(session.get("id")))
+          else:
+               db.close()
+               return redirect('/')
      else:
           db.close()
           return redirect('/')
@@ -501,51 +538,67 @@ def update_niveau(id,admin,niveau):
      
 @app.route('/comment/<id>',methods=['post'])
 def post_commentaire(id):
-     content=request.form.to_dict()
-     user=str(session.get("id"))
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     if request.method=='POST':
-          cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
-          db.commit()
-     cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
-     id_sub = cursor.fetchall()
-     db.close()
-     return redirect('/sub/'+str(id_sub[0][0])+'/post')
+     if test_login():
+          content=request.form.to_dict()
+          user=str(session.get("id"))
+          if request.method=='POST':
+               cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
+               db.commit()
+          cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
+          id_sub = cursor.fetchall()
+          db.close()
+          return redirect('/sub/'+str(id_sub[0][0])+'/post')
+     else:
+          db.close()
+          return redirect('/')
 
 
 @app.route('/mesabonnements')
 def affichageabonnements():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
-     L=cursor.fetchall()
-     db.close()
-     return render_template('mesabonnements.html',data=L)
+     if test_login():
+          cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+          L=cursor.fetchall()
+          db.close()
+          return render_template('mesabonnements.html',data=L)
+     else:
+          db.close()
+          return redirect('/')
 
 @app.route('/mesprojets')
 def affichageprojets():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT numéro_projet, nom, mots_clés, description, création FROM subs WHERE créé_par=?",(str(session.get("id"))))
-     L=cursor.fetchall()
-     db.close()
-     return render_template('mesprojets.html',data=L)
+     if test_login():
+          cursor.execute("SELECT numéro_projet, nom, mots_clés, description, création FROM subs WHERE créé_par=?",(str(session.get("id"))))
+          L=cursor.fetchall()
+          db.close()
+          return render_template('mesprojets.html',data=L)
+     else:
+          db.close()
+          return redirect('/')
 
 @app.route('/upvote/<id_com>')
 def upvote(id_com):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
-     likeur=cursor.fetchall()
-     if str(session.get('id')) not in likeur[0][0].split('/'):
-          likeur=likeur[0][0]+'/'+str(session.get('id'))
-          cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
-          db.commit()
-     cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
-     id=cursor.fetchall()[0][0]
-     db.close()
-     return redirect('/sub/'+str(id)+'/post')
+     if test_login():
+          cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+          likeur=cursor.fetchall()
+          if str(session.get('id')) not in likeur[0][0].split('/'):
+               likeur=likeur[0][0]+'/'+str(session.get('id'))
+               cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
+               db.commit()
+          cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
+          id=cursor.fetchall()[0][0]
+          db.close()
+          return redirect('/sub/'+str(id)+'/post')
+     else:
+          db.close()
+          return redirect('/')
 
 
 if __name__=='__main__':

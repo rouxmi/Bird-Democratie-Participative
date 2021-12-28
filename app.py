@@ -1,4 +1,3 @@
-import re
 import sqlite3
 from sqlite3.dbapi2 import Cursor
 import os 
@@ -54,7 +53,7 @@ def test_login():
 def test_verif():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT niveau FROM utilisateur WHERE id_user""",(str(session.get('id'))))
+     cursor.execute(""" SELECT niveau FROM utilisateurs WHERE id_user=?""",(str(session.get('id'),)))
      test=cursor.fetchall()[0][0]
      db.close()
      if test=='B':
@@ -188,7 +187,10 @@ def accueil():
 
 @app.route('/form')
 def form():
-     return render_template('sub.html')
+     if test_verif:
+          return render_template('sub.html')
+     else:
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires")     
 
 @app.route('/parcourir')
 def parcourir():
@@ -202,15 +204,22 @@ def parcourir():
 
 @app.route('/post',methods=['post'])
 def post():
-     form_data=request.form.to_dict()
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     id=session.get('id')
-     cursor.execute("""
-     INSERT INTO subs(nom,créé_par,mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
-     db.commit()
-     db.close()
-     return redirect('/')
+     if test_login():
+          if test_verif():
+               form_data=request.form.to_dict()
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               id=session.get('id')
+               cursor.execute("""
+               INSERT INTO subs(nom,créé_par,mots_clés,description,création) values(?,?,?,?,?)""",(str(form_data['name']),id,str(form_data['domaine']),str(form_data['description']),datetime.date.today()))
+               db.commit()
+               db.close()
+               return redirect('/')
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+     else:
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -247,30 +256,33 @@ def search_results(search):
 @app.route('/recommandation')
 def recom():
      if test_login():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          cursor.execute("SELECT sub FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
-          abonnement=cursor.fetchall()
-          cursor.execute("SELECT numéro_projet FROM subs WHERE créé_par=?",(str(session.get("id"))))
-          abonnement+=cursor.fetchall()
-          total={}
-          for i in range(len(abonnement)):
-               abonnement[i]=abonnement[i][0]
-          for i in range(len(abonnement)):
-               temp=recommandation(abonnement[i])
-               for j in range(len(temp)):
-                    if temp[j][0] not in abonnement:
-                         if temp[j][0] in total:
-                              total[temp[j][0]]+=temp[j][1]
-                         else:
-                              total[temp[j][0]]=temp[j][1]
-          result=list(sorted(total.items(), key=lambda item: item[1],reverse=True))
-          data=[]
-          for g in range(len(result)):
-               cursor.execute("SELECT * FROM subs WHERE numéro_projet=?",(result[g][0],))
-               data.append(cursor.fetchall()[0]+(result[g][1],g+1))
-          db.close()
-          return render_template('recommandation.html',data=data)
+          if test_verif():
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               cursor.execute("SELECT sub FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+               abonnement=cursor.fetchall()
+               cursor.execute("SELECT numéro_projet FROM subs WHERE créé_par=?",(str(session.get("id"))))
+               abonnement+=cursor.fetchall()
+               total={}
+               for i in range(len(abonnement)):
+                    abonnement[i]=abonnement[i][0]
+               for i in range(len(abonnement)):
+                    temp=recommandation(abonnement[i])
+                    for j in range(len(temp)):
+                         if temp[j][0] not in abonnement:
+                              if temp[j][0] in total:
+                                   total[temp[j][0]]+=temp[j][1]
+                              else:
+                                   total[temp[j][0]]=temp[j][1]
+               result=list(sorted(total.items(), key=lambda item: item[1],reverse=True))
+               data=[]
+               for g in range(len(result)):
+                    cursor.execute("SELECT * FROM subs WHERE numéro_projet=?",(result[g][0],))
+                    data.append(cursor.fetchall()[0]+(result[g][1],g+1))
+               db.close()
+               return render_template('recommandation.html',data=data)
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
@@ -304,32 +316,38 @@ def viewsub(id):
 @app.route("/<id>/abonnement")
 def abonnement(id):
      if test_login() :
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          if test_id_sub(id):
-               cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
-               db.commit()
-               db.close()
-               return redirect(url_for('viewsub',id=id))
-          else :
-               db.close()
-               return redirect('/')
+          if test_verif():
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               if test_id_sub(id):
+                    cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
+                    db.commit()
+                    db.close()
+                    return redirect(url_for('viewsub',id=id))
+               else :
+                    db.close()
+                    return redirect('/')
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           return redirect('/')
 
 @app.route('/<id>/desabonnement')
 def desabonnement(id):
      if test_login():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          if test_id_sub(id):
-               cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
-               db.commit()
-               db.close()
-               return redirect(url_for('viewsub',id=id))
-          else :
-               db.close()
-               return redirect('/')
+          if test_verif():
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               if test_id_sub(id):
+                    cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
+                    db.commit()
+                    db.close()
+                    return redirect(url_for('viewsub',id=id))
+               else :
+                    db.close()
+                    return redirect('/')
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
@@ -338,16 +356,19 @@ def desabonnement(id):
 @app.route('/<id>/demande_participation')
 def demande_participation(id):
      if test_login():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          if test_id_sub(id):
-               cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
-               db.commit()
-               db.close()
-               return redirect(url_for('viewsub',id=id))
-          else :
-               db.close()
-               return redirect('/')
+          if test_verif():
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               if test_id_sub(id):
+                    cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
+                    db.commit()
+                    db.close()
+                    return redirect(url_for('viewsub',id=id))
+               else :
+                    db.close()
+                    return redirect('/')
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
@@ -355,16 +376,19 @@ def demande_participation(id):
 @app.route('/<id>/annuler_participation')
 def annuler_participation(id):
      if test_login():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          if test_id_sub(id):
-               cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
-               db.commit()
-               db.close()
-               return redirect(url_for('viewsub',id=id))
-          else :
-               db.close()
-               return redirect('/')
+          if test_verif():
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
+               if test_id_sub(id):
+                    cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
+                    db.commit()
+                    db.close()
+                    return redirect(url_for('viewsub',id=id))
+               else :
+                    db.close()
+                    return redirect('/')
+          else:
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
 
@@ -402,117 +426,146 @@ def viewpost(id):
 
 @app.route('/sub/<id>/creationpost')
 def newpost(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          return render_template('newpost.html',data=id)
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               return render_template('newpost.html',data=id)
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+     
+
 
 @app.route('/postsub/<id>',methods = ['GET','POST'])
 def postsub(id):
-     titre = request.form['titre']
-     description = request.form['description']
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          if request.method=='POST':
-               cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
-               cursor.execute("SELECT max(id_post) FROM posts")
-               idpost=cursor.fetchall()
-               db.commit()
-               db.close()
-               if "image" in request.files:
-                    image = request.files["image"]
-                    split_tup = os.path.splitext(image.filename)
-                    file_extension = split_tup[1]
-                    if image.filename == "":
-                         print("pas de nom")
-                         return redirect('/sub/'+str(id)+'/creationpost')
+     if test_verif():
+          titre = request.form['titre']
+          description = request.form['description']
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               if request.method=='POST':
+                    cursor.execute("INSERT INTO posts(id_sub,titre,description,date_creation,ratio) values(?,?,?,?,?)",(id,titre,description,datetime.date.today(),0))
+                    cursor.execute("SELECT max(id_post) FROM posts")
+                    idpost=cursor.fetchall()
+                    db.commit()
+                    db.close()
+                    if "image" in request.files:
+                         image = request.files["image"]
+                         split_tup = os.path.splitext(image.filename)
+                         file_extension = split_tup[1]
+                         if image.filename == "":
+                              print("pas de nom")
+                              return redirect('/sub/'+str(id)+'/creationpost')
 
-                    if allowed_image(image.filename):
-                         image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])))
-                         print("image sauvegardé")
-                         return redirect('/sub/'+str(id)+'/creationpost')
-                    
-                    else:
-                         print("type de fichier non supporté")
-                         return redirect('/sub/'+str(id)+'/creationpost')
-               return redirect('/sub/'+str(id)+'/creationpost')
-          return render_template('newpost.html')
+                         if allowed_image(image.filename):
+                              image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])))
+                              print("image sauvegardé")
+                              return redirect('/sub/'+str(id)+'/creationpost')
+                         
+                         else:
+                              print("type de fichier non supporté")
+                              return redirect('/sub/'+str(id)+'/creationpost')
+                    return redirect('/sub/'+str(id)+'/creationpost')
+               return render_template('newpost.html')
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
      
 
 
 @app.route('/<id>/ajoutcompteur')
 def updatecompteurpostpositif(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
-          db.commit()
-          db.close()
-          return redirect('/')
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
+               db.commit()
+               db.close()
+               return redirect('/')
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
 @app.route('/<id>/retraitcompteur')
 def updatecompteurpostnegatif(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
-          db.commit()
-          db.close()
-          return redirect('/')
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
+               db.commit()
+               db.close()
+               return redirect('/')
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
 
 @app.route('/sub/<id>/demandes')
 def demande(id):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
-          data=cursor.fetchall()
-          db.close()
-          return render_template("participants.html",id=id,data=data)
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
+               data=cursor.fetchall()
+               db.close()
+               return render_template("participants.html",id=id,data=data)
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
 @app.route('/<id>/accepter/<user>')
 def accepter(id,user):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("INSERT INTO participants(sub,utilisateur) VALUES (?,?)",(id,user))
-          cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
-          db.commit()
-          db.close()
-          return redirect(url_for('demande',id=id))
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("INSERT INTO participants(sub,utilisateur) VALUES (?,?)",(id,user))
+               cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
+               db.commit()
+               db.close()
+               return redirect(url_for('demande',id=id))
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
 @app.route('/<id>/refuser/<user>')
 def refuser(id,user):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     if test_id_sub(id):
-          cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
-          db.commit()
-          db.close()
-          return redirect(url_for(demande,id=id))
+     if test_verif():
+          db = sqlite3.connect('database.db')
+          cursor = db.cursor()
+          if test_id_sub(id):
+               cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur=?",(id,user))
+               db.commit()
+               db.close()
+               return redirect(url_for(demande,id=id))
+          else:
+               db.close()
+               return redirect('/')
      else:
-          db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
 
 @app.route('/profil')
@@ -552,7 +605,7 @@ def validation_utilisateur():
                return render_template('validation.html',data=data,admin=str(session.get("id")))
           else:
                db.close()
-               return redirect('/')
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
@@ -582,7 +635,8 @@ def update_niveau(id,admin,niveau):
                return redirect('/')
      else:
           db.close()
-          return redirect('/')
+          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+    
 
      
 @app.route('/comment/<id>',methods=['post'])
@@ -590,15 +644,19 @@ def post_commentaire(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          content=request.form.to_dict()
-          user=str(session.get("id"))
-          if request.method=='POST':
-               cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
-               db.commit()
-          cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
-          id_sub = cursor.fetchall()
-          db.close()
-          return redirect('/sub/'+str(id_sub[0][0])+'/post')
+          if test_verif():
+               content=request.form.to_dict()
+               user=str(session.get("id"))
+               if request.method=='POST':
+                    cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
+                    db.commit()
+               cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
+               id_sub = cursor.fetchall()
+               db.close()
+               return redirect('/sub/'+str(id_sub[0][0])+'/post')
+          else:
+               db.close()
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
@@ -638,16 +696,20 @@ def upvote(id_com):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
-          likeur=cursor.fetchall()
-          if str(session.get('id')) not in likeur[0][0].split('/'):
-               likeur=likeur[0][0]+'/'+str(session.get('id'))
-               cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
-               db.commit()
-          cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
-          id=cursor.fetchall()[0][0]
-          db.close()
-          return redirect('/sub/'+str(id)+'/post')
+          if test_verif():
+               cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+               likeur=cursor.fetchall()
+               if str(session.get('id')) not in likeur[0][0].split('/'):
+                    likeur=likeur[0][0]+'/'+str(session.get('id'))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
+                    db.commit()
+               cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
+               id=cursor.fetchall()[0][0]
+               db.close()
+               return redirect('/sub/'+str(id)+'/post')
+          else:
+               db.close()
+               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')

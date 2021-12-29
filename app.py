@@ -771,8 +771,9 @@ def upvote(id_com):
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
-@app.route("/sub/<numsub>/chat", methods=["GET","POST"])
+@app.route("/sub/<numsub>/tchat", methods=["GET","POST"])
 def chat(numsub):
+<<<<<<< HEAD
      if test_login():
           if test_verif():
                user = session.get('id')
@@ -798,6 +799,25 @@ def chat(numsub):
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
+=======
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_login():
+          id_posteur=session.get('id')
+          cursor.execute("""SELECT nom,prénom,message,date FROM tchat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur""",(numsub,))
+          data=cursor.fetchall()
+          if request.method=='POST':
+               now = time.localtime(time.time())
+               message = request.form['message']
+               cursor.execute("""
+               INSERT INTO tchat(numsub,id_posteur,message,date) values(?,?,?,?)""",(numsub,id_posteur,str(message),time.strftime("%y/%m/%d %H:%M", now)))
+               db.commit()
+          db.close()
+          return render_template('chat.html',data=data,numsub=numsub)
+     else:
+          db.close()
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+>>>>>>> 436043a73e1a8549b9d98c232bdc84ccfcc6c28a
 
 
 if __name__=='__main__':

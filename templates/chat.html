@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <meta http-equiv="refresh" content="30" />
+    <p>
+        <h1>Zone de chat</h1> 
+    </p>
+    
+    {% for item in data %}
+        <p> <b>{{item[1]}} {{item[0]}} :</b> <font size=+1>{{item[2]}} </font> <font size=-1>le {{item[3]}}</font></p>  
+
+    {% endfor %}
+
+    <form action="{{url_for('chat',numsub = numsub)}}" method = "POST">
+        <p>
+            <label for="message">Mon message:</label>
+            <textarea type="text" class = "form-control" name="message" rows="20" placeholder="Ecrivez votre message ici..." required minlength='1' maxlength='5000' style="height: 80px"></textarea>
+        </p>
+        <p>   
+            <input type= "submit" value="Submit">
+            </input>
+        </p> 
+    </form>
+{% endblock %}

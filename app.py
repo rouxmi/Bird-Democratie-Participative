@@ -178,8 +178,11 @@ def enregistre():
      else:
           return redirect('/')
 
+
+# Route lié à la page d'accueil qui affiche le fil d'actualité
 @app.route('/accueil')
 def accueil():
+     # Sélection des posts liés aux projets abonnés et créés par l'utilisateur, tri par ordre décroissant de date de création
      query = "SELECT DISTINCT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts JOIN abonnements WHERE Numéro_projet = id_sub AND (utilisateur=? AND sub=id_sub OR créé_par= ?) ORDER BY date_creation DESC"
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -195,7 +198,7 @@ def form():
      if test_verif:
           return render_template('sub.html')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires")     
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires")     
 
 @app.route('/parcourir')
 def parcourir():
@@ -221,9 +224,9 @@ def post():
                db.close()
                return redirect('/')
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 
@@ -287,9 +290,9 @@ def recom():
                db.close()
                return render_template('recommandation.html',data=data)
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 @app.route('/sub/<id>')
@@ -298,6 +301,7 @@ def viewsub(id):
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
           if test_id_sub(id):
+               # Récupération des données liées au projet (nom,description, créateur, nombre d'abonnés, participants...)
                cursor.execute("SELECT subs.nom,description,créé_par,utilisateurs.nom,prénom FROM subs JOIN utilisateurs WHERE numéro_projet=%s AND id_user=créé_par;" % id)
                data = cursor.fetchall()
                cursor.execute("SELECT COUNT(*) FROM abonnements WHERE sub=?",(id,))
@@ -305,6 +309,7 @@ def viewsub(id):
                cursor.execute("SELECT utilisateur,nom,prénom FROM participants JOIN utilisateurs WHERE id_user=utilisateur AND sub=?",(id,))
                liste_participants=cursor.fetchall()
                user_id = session.get('id')
+               # Définition de l'état de l'utilisateur vis-à-vis du projet
                owner = is_owner(id,user_id)
                abonne = est_abonne(id,user_id)
                participant = est_participant(id,user_id)
@@ -316,9 +321,9 @@ def viewsub(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
-
+#Route lié au bouton s'abonner du projet de numéro 'id'
 @app.route("/<id>/abonnement")
 def abonnement(id):
      if test_login() :
@@ -334,10 +339,12 @@ def abonnement(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           return redirect('/')
 
+
+# Route liée au bouton se désabonner du projet de numéro 'id'
 @app.route('/<id>/desabonnement')
 def desabonnement(id):
      if test_login():
@@ -353,12 +360,12 @@ def desabonnement(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
-
+# Route liée au bouton Participer du projet n° 'id'
 @app.route('/<id>/demande_participation')
 def demande_participation(id):
      if test_login():
@@ -374,11 +381,11 @@ def demande_participation(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
-
+# Route liée au bouton Ne plus participer du projet n° 'id'
 @app.route('/<id>/annuler_participation')
 def annuler_participation(id):
      if test_login():
@@ -394,13 +401,13 @@ def annuler_participation(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 
-
+# Route liée à l'onglet Post du projet n° 'id'
 @app.route('/sub/<id>/post')
 def viewpost(id):
      if test_login():
@@ -427,9 +434,10 @@ def viewpost(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
+# Route liée au bouton Créer un nouveau post dans l'onglet Post du projet n° 'id'
 @app.route('/sub/<id>/creationpost')
 def newpost(id):
      if test_verif():
@@ -441,10 +449,10 @@ def newpost(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      
 
-
+# Route liée au form pour créer un nouveau post lié au projet n° 'id'
 @app.route('/postsub/<id>',methods = ['GET','POST'])
 def postsub(id):
      if test_verif():
@@ -481,17 +489,18 @@ def postsub(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
     
      
 
-
+# Route liée au bouton Like sur un post d'id_post = 'id'
 @app.route('/<id>/ajoutcompteur')
 def updatecompteurpostpositif(id):
      if test_verif():
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          if test_id_sub(id):
+          id_sub = cursor.fetchall(cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?"),(id,))
+          if test_id_sub(id_sub):
                cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
                db.commit()
                db.close()
@@ -500,15 +509,17 @@ def updatecompteurpostpositif(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
-    
+          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
 
+
+# Route liée au bouton Dislike du post d'id_post 'id'
 @app.route('/<id>/retraitcompteur')
 def updatecompteurpostnegatif(id):
      if test_verif():
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          if test_id_sub(id):
+          id_sub = cursor.fetchall(cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?"),(id,))
+          if test_id_sub(id_sub):
                cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
                db.commit()
                db.close()
@@ -517,10 +528,10 @@ def updatecompteurpostnegatif(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
     
 
-
+# Route liée à l'onglet Demande de participation du projet n° 'id'
 @app.route('/sub/<id>/demandes')
 def demande(id):
      if test_verif():
@@ -535,9 +546,11 @@ def demande(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
-    
+          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
 
+
+
+# Route liée au bouton Accepter la participation de 'user' dans l'onglet Demande de participations du projet n° 'id'
 @app.route('/<id>/accepter/<user>')
 def accepter(id,user):
      if test_verif():
@@ -553,9 +566,10 @@ def accepter(id,user):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
     
 
+# Route liée au bouton Refuser la participation de 'user' dans l'onglet Demande de participations du projet n° 'id'
 @app.route('/<id>/refuser/<user>')
 def refuser(id,user):
      if test_verif():
@@ -570,63 +584,65 @@ def refuser(id,user):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
     
 
-
+# Route liée à l'onglet Mon Profil
 @app.route('/profil')
 def voirleprofil():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
-          niveau=cursor.fetchall()
-          cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
+          id_user = session.get('id')
+          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id_user,))
+          niveau=cursor.fetchall()[0][0]
+          cursor.execute("SELECT nom, prénom, mail, mdp FROM utilisateurs WHERE id_user=?",(id_user,))
           L= cursor.fetchall()
           db.close()
           mdp=L[0][3]
           mdp2=''
           for i in range(len(mdp)):
                mdp2+='*'
-          if niveau[0][0]=='A':
+          if niveau=='A':
                return render_template('profil.html',data='e',L=L,mdp=mdp2)
           else:
                return render_template('profil.html',data=1,L=L,mdp=mdp2)
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
+# Route liée au bouton Gérer les accès des utilisateurs (accesible uniquement pour les adminastrateurs)
 @app.route('/validation')
 def validation_utilisateur():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(session.get("id"))))
-          niveau=cursor.fetchall()
-          if niveau[0][0]=='A':
+          cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(session.get("id"),))
+          niveau=cursor.fetchall()[0][0]
+          if niveau=='A':
                cursor.execute('SELECT niveau,id_user,nom,prénom FROM utilisateurs')
                data=cursor.fetchall()
                db.close()
-               return render_template('validation.html',data=data,admin=str(session.get("id")))
+               return render_template('validation.html',data=data)
           else:
                db.close()
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
      
-
-@app.route('/<id>/<admin>/<niveau>')
-def update_niveau(id,admin,niveau):
+# Route lié au bouton Mettre en 'niveau' l'utilisateur 'id' sur la page validation (pour gérer les niveaux des utilisateurs) 
+@app.route('/<id>/<niveau>')
+def update_niveau(id,niveau):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id))
      niv=cursor.fetchall()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(str(admin)))
-     user=cursor.fetchall()
-     if user[0][0]=='A' and niv!=[]:
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(session.get('id'),))
+     user=cursor.fetchall()[0][0]
+     if user=='A' and niv!=[]:
           if niveau=='Admin':
                cursor.execute("UPDATE utilisateurs SET niveau='A' WHERE id_user=?",(id,))
                db.commit()
@@ -641,10 +657,10 @@ def update_niveau(id,admin,niveau):
                return redirect('/')
      else:
           db.close()
-          return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
     
 
-     
+# Route liée à l'ajout d'un commentaire sur le post      
 @app.route('/comment/<id>',methods=['post'])
 def post_commentaire(id):
      db = sqlite3.connect('database.db')
@@ -657,15 +673,15 @@ def post_commentaire(id):
                     cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
                     db.commit()
                cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
-               id_sub = cursor.fetchall()
+               id_sub = cursor.fetchall()[0][0]
                db.close()
-               return redirect('/sub/'+str(id_sub[0][0])+'/post')
+               return redirect('/sub/'+str(id_sub)+'/post')
           else:
                db.close()
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 
@@ -680,7 +696,7 @@ def affichageabonnements():
           return render_template('mesabonnements.html',data=L)
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 '''@app.route('/mesabonnements')
 def affichageabonnements():
@@ -702,7 +718,7 @@ def affichageprojets():
           return render_template('mesprojets.html',data=L)
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 @app.route('/upvote/<id_com>')
@@ -723,10 +739,10 @@ def upvote(id_com):
                return redirect('/sub/'+str(id)+'/post')
           else:
                db.close()
-               return render_template('erreur.html',message="Accés refusé",description="vous n'avez pas les accés néccesaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecter')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
 
 @app.route("/sub/<numsub>/chat", methods=["GET","POST"])

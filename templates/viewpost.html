@@ -8,20 +8,34 @@
 {% block content %}
 <ul class="nav nav-tabs navbar-dark bg-dark">
   <li class="nav-item">
-    <a class="nav-link " aria-current="page" href="/sub/{{ data[1] }} ">Description</a>
+    <a class="nav-link " aria-current="page" href="/sub/{{id}} ">Description</a>
   </li>
   <li class="nav-item active dropdown">
     <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Posts</a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-      <li><a class="dropdown-item" href="/sub/{{ data[1] }}/creationpost">Créer un post</a></li>
+      <li><a class="dropdown-item" href="/sub/{{id}}/creationpost">Créer un post</a></li>
     </ul>      
   </li>
+  {% if owner or participant %}
+  <li class="nav-item">
+    <a class="nav-link">Calendrier</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" aria-current="page" href="/sub/{{ id }}/chat">Chat</a>
+  </li>
+  {% else %}
   <li class="nav-item">
     <a class="nav-link disabled">Calendrier</a>
   </li>
   <li class="nav-item">
     <a class="nav-link disabled">Chat</a>
   </li>
+  {% endif %}
+  {% if owner %}
+  <li class="nav-item">
+    <a class="nav-link" aria-current="page" href="/sub/{{ id }}/demandes">Demandes de participation</a>
+  </li>
+  {% endif %}
 </ul>
 
 <body style = "background-color: rgb(73, 73, 73);">

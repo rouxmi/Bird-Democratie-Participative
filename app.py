@@ -226,7 +226,7 @@ def post():
           else:
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 
@@ -292,7 +292,7 @@ def recom():
           else:
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 @app.route('/sub/<id>')
@@ -321,25 +321,28 @@ def viewsub(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 #Route lié au bouton s'abonner du projet de numéro 'id'
 @app.route("/<id>/abonnement")
 def abonnement(id):
      if test_login() :
           if test_verif():
-               db = sqlite3.connect('database.db')
-               cursor = db.cursor()
                if test_id_sub(id):
-                    cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
-                    db.commit()
-                    db.close()
-                    return redirect(url_for('viewsub',id=id))
+                    user = session.get('id')
+                    if not is_owner(id,user) and not est_abonne(id,user):
+                         db = sqlite3.connect('database.db')
+                         cursor = db.cursor()
+                         cursor.execute("INSERT INTO abonnements(sub,utilisateur) VALUES (?,?);",(id,session.get('id')))
+                         db.commit()
+                         db.close()
+                         return redirect(url_for('viewsub',id=id))
+                    else:
+                         return render_template('erreur.html',message="Impossible de s'abonner",description="Vous êtes déjà abonné ou bien alors c'est votre projet")
                else :
-                    db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
      else:
           return redirect('/')
 
@@ -349,20 +352,28 @@ def abonnement(id):
 def desabonnement(id):
      if test_login():
           if test_verif():
-               db = sqlite3.connect('database.db')
-               cursor = db.cursor()
                if test_id_sub(id):
-                    cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,session.get('id')))
-                    db.commit()
-                    db.close()
-                    return redirect(url_for('viewsub',id=id))
+                    user = session.get('id')
+                    if est_abonne(id,user):
+                         db = sqlite3.connect('database.db')
+                         cursor = db.cursor()
+                         cursor.execute("DELETE FROM abonnements WHERE sub=? AND utilisateur = ?;",(id,user))
+                         if a_demande(id,user):
+                              cursor.execute("DELETE FROM demande_participation WHERE sub=? AND utilisateur = ?;",(id,user))
+                         elif est_participant(id,user):
+                              cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur = ?;",(id,user))     
+                         db.commit()
+                         db.close()
+                         return redirect(url_for('viewsub',id=id))
+                    else :
+                         return render_template('erreur.html',message="Impossible de se désabonner",description="Vous n'êtes pas abonné ou bien c'est votre projet")
+
                else :
-                    db.close()
                     return redirect('/')
           else:
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 # Route liée au bouton Participer du projet n° 'id'
@@ -370,40 +381,48 @@ def desabonnement(id):
 def demande_participation(id):
      if test_login():
           if test_verif():
-               db = sqlite3.connect('database.db')
-               cursor = db.cursor()
                if test_id_sub(id):
-                    cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
-                    db.commit()
-                    db.close()
-                    return redirect(url_for('viewsub',id=id))
+                    user = session.get('id')
+                    if not a_demande(id,user) and not is_owner(id,user) and est_abonne(id,user):
+                         db = sqlite3.connect('database.db')
+                         cursor = db.cursor()
+                         cursor.execute("INSERT INTO demande_participation(sub,utilisateur) VALUES (?,?)",(id,session.get('id')))
+                         db.commit()
+                         db.close()
+                         return redirect(url_for('viewsub',id=id))
+                    else:
+                         return render_template('erreur.html',message="Impossible de demander à participer au projet",description="Vous n'êtes pas abonné ou bien c'est votre projet ou vous avez déjà fait une demande")
+
                else :
-                    db.close()
                     return redirect('/')
           else:
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 # Route liée au bouton Ne plus participer du projet n° 'id'
 @app.route('/<id>/annuler_participation')
 def annuler_participation(id):
      if test_login():
           if test_verif():
-               db = sqlite3.connect('database.db')
-               cursor = db.cursor()
                if test_id_sub(id):
-                    cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,session.get('id')))
-                    db.commit()
-                    db.close()
-                    return redirect(url_for('viewsub',id=id))
+                    user = session.get('id')
+                    if est_participant(id,user):
+                         db = sqlite3.connect('database.db')
+                         cursor = db.cursor()
+                         cursor.execute("DELETE FROM participants WHERE sub=? AND utilisateur=?",(id,user))
+                         db.commit()
+                         db.close()
+                         return redirect(url_for('viewsub',id=id))
+                    else :
+                         return render_template('erreur.html',message="Impossible d'annuler sa participation au projet",description="Vous ne participez pas au projet ou bien c'est votre projet")
+
                else :
-                    db.close()
                     return redirect('/')
           else:
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 
@@ -411,9 +430,9 @@ def annuler_participation(id):
 @app.route('/sub/<id>/post')
 def viewpost(id):
      if test_login():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           if test_id_sub(id):
+               db = sqlite3.connect('database.db')
+               cursor = db.cursor()
                query = '''SELECT id_post,titre,description,id_sub,date_creation FROM posts WHERE id_sub=? ORDER BY date_creation;'''
                cursor.execute(query,(id,))
                L =(cursor.fetchall(),id)
@@ -429,24 +448,28 @@ def viewpost(id):
                     else:
                          comments[idpost]=[]
                db.close()
-               return render_template('viewpost.html', data=L,comments=comments)
+               user = session.get('id')
+               abonne = est_abonne(id,user)
+               owner = is_owner(id,user)
+               participant = est_participant(id,user)
+               return render_template('viewpost.html', data=L,comments=comments,id=id,abonne=abonne,owner=owner,participant=participant)
           else:
-               db.close()
                return redirect('/')
      else:
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 # Route liée au bouton Créer un nouveau post dans l'onglet Post du projet n° 'id'
 @app.route('/sub/<id>/creationpost')
 def newpost(id):
      if test_verif():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           if test_id_sub(id):
-               return render_template('newpost.html',data=id)
+               user = session.get('id')
+               if is_owner(id,user) or est_participant(id,user):
+                    return render_template('newpost.html',data=id)
+               else:
+                    return render_template('erreur.html',message="Impossible de créer un post",description="Vous ne participez pas au projet ni n'êtes son créateur")        
           else:
-               db.close()
                return redirect('/')
      else:
           return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
@@ -535,15 +558,18 @@ def updatecompteurpostnegatif(id):
 @app.route('/sub/<id>/demandes')
 def demande(id):
      if test_verif():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
           if test_id_sub(id):
-               cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
-               data=cursor.fetchall()
-               db.close()
-               return render_template("participants.html",id=id,data=data)
+               if is_owner(id,session.get('id')):
+                    db = sqlite3.connect('database.db')
+                    cursor = db.cursor()
+                    cursor.execute("SELECT utilisateur,nom,prénom FROM demande_participation JOIN utilisateurs WHERE id_user=utilisateur AND sub = ?",(id,))
+                    data=cursor.fetchall()
+                    db.close()
+                    return render_template("participants.html",id=id,data=data)
+               else :
+                    return render_template('erreur.html',message="Accès refusé",description="Vous n'êtes pas le créateur du projet") 
+
           else:
-               db.close()
                return redirect('/')
      else:
           return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
@@ -630,7 +656,7 @@ def validation_utilisateur():
                return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
      
 # Route lié au bouton Mettre en 'niveau' l'utilisateur 'id' sur la page validation (pour gérer les niveaux des utilisateurs) 
@@ -681,7 +707,7 @@ def post_commentaire(id):
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 
@@ -696,7 +722,7 @@ def affichageabonnements():
           return render_template('mesabonnements.html',data=L)
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 '''@app.route('/mesabonnements')
 def affichageabonnements():
@@ -718,7 +744,7 @@ def affichageprojets():
           return render_template('mesprojets.html',data=L)
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 @app.route('/upvote/<id_com>')
@@ -742,24 +768,36 @@ def upvote(id_com):
                return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
-          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
 @app.route("/sub/<numsub>/chat", methods=["GET","POST"])
 def chat(numsub):
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     id_posteur=session.get('id')
-     cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur""",(numsub,))
-     data=cursor.fetchall()
-     if request.method=='POST':
-          now = time.localtime(time.time())
-          message = request.form['message']
-          cursor.execute("""
-          INSERT INTO chat(numsub,id_posteur,message,date) values(?,?,?,?)""",(numsub,id_posteur,str(message),time.strftime("%y/%m/%d %H:%M", now)))
-          db.commit()
-     db.close()
-     return render_template('chat.html',data=data,numsub=numsub)
+     if test_login():
+          if test_verif():
+               user = session.get('id')
+               if is_owner(numsub,user) or est_participant(numsub,user):
+                    db = sqlite3.connect('database.db')
+                    cursor = db.cursor()
+                    id_posteur=session.get('id')
+                    cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur""",(numsub,))
+                    data=cursor.fetchall()
+                    if request.method=='POST':
+                         now = time.localtime(time.time())
+                         message = request.form['message']
+                         cursor.execute("""
+                         INSERT INTO chat(numsub,id_posteur,message,date) values(?,?,?,?)""",(numsub,id_posteur,str(message),time.strftime("%y/%m/%d %H:%M", now)))
+                         db.commit()
+                         db.close()
+                    return render_template('chat.html',data=data,numsub=numsub)
+               else :
+                    return render_template('erreur.html',message="Accès refusé au chat",description="Vous n'êtes ni le créateur du projet ni un participant") 
+    
+          else:
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
+     else:
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
+
 
 
 if __name__=='__main__':

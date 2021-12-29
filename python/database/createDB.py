@@ -48,7 +48,7 @@ def createDButilisateurs():
 def createDBcommentaires():
     db = sqlite3.connect('database.db')
     cursor = db.cursor()
-    cursor.execute("CREATE TABLE commentaires(id_comment INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER) ")
+    cursor.execute("CREATE TABLE commentaires(id_commentaire INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER,likeur TEXT,upvote INTEGER,dislikeur TEXT,downvote INTEGER,FOREIGN KEY(id_post) REFERENCES posts(id_post),FOREIGN KEY(posté_par) REFERENCES utilisateur(id_user)) ")
     db.commit()
     db.close()
 

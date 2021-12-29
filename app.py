@@ -180,10 +180,11 @@ def enregistre():
 
 @app.route('/accueil')
 def accueil():
-     query = "SELECT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts WHERE Numéro_projet = id_sub ORDER BY date_creation DESC;"
+     query = "SELECT DISTINCT nom,titre,posts.description,id_sub,posts.date_creation,id_post FROM subs JOIN posts JOIN abonnements WHERE Numéro_projet = id_sub AND (utilisateur=? AND sub=id_sub OR créé_par= ?) ORDER BY date_creation DESC"
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(query)
+     id_user = session.get('id')
+     cursor.execute(query,(id_user,id_user))
      L = cursor.fetchall()
      db.close()
      os.path.isfile("static/img/uploads/")

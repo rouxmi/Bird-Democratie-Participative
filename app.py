@@ -198,7 +198,7 @@ def form():
      if test_verif:
           return render_template('sub.html')
      else:
-          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires")     
+          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires")     
 
 @app.route('/parcourir')
 def parcourir():
@@ -381,7 +381,7 @@ def demande_participation(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
@@ -401,7 +401,7 @@ def annuler_participation(id):
                     db.close()
                     return redirect('/')
           else:
-               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
 
@@ -546,7 +546,7 @@ def demande(id):
                db.close()
                return redirect('/')
      else:
-          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
+          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
 
 
 
@@ -627,7 +627,7 @@ def validation_utilisateur():
                return render_template('validation.html',data=data)
           else:
                db.close()
-               return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
@@ -657,7 +657,7 @@ def update_niveau(id,niveau):
                return redirect('/')
      else:
           db.close()
-          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'Accès nécessaires") 
+          return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
     
 
 # Route liée à l'ajout d'un commentaire sur le post      
@@ -678,7 +678,7 @@ def post_commentaire(id):
                return redirect('/sub/'+str(id_sub)+'/post')
           else:
                db.close()
-               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')
@@ -739,7 +739,7 @@ def upvote(id_com):
                return redirect('/sub/'+str(id)+'/post')
           else:
                db.close()
-               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'Accès nécessaires") 
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
      else:
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expirée ou vous ne vous êtes pas connecté')

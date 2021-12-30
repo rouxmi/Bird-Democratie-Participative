@@ -47,11 +47,15 @@
   {% for item in data[0] %}
       <div class="card bg-light mb-3" style="width : 50rem; margin:auto;">
         <div class="card-body">
-            <h3 class="card-title">{{item[1]}}</h3>
-            <p class="card-text">{{item[2]}}</p>
-            <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
-            <button class = "btn btn-block btn-secondary">LIKE</button>
-            <button class = "btn btn-block btn-secondary">DISLIKE</button>
+          <h3 class="card-title">{{item[1]}}</h3>
+          <p class="card-text">{{item[2]}}</p>
+          {% if  os.path.isfile("static/img/uploads/"~item[5]) == True %}
+            <img src="static/img/uploads/{{item[5]}}" class= image_post > 
+            <hr>
+          {% endif %}
+          <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
+          <button class = "btn btn-block btn-secondary">LIKE</button>
+          <button class = "btn btn-block btn-secondary">DISLIKE</button>
             
         </div>
         <div class="container justify-content-center mt-5 border-left border-right" style='display: inline-block;'>

@@ -39,7 +39,7 @@ def allowed_image(filename):
 def test_id_sub(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?;""",(id,))
+     cursor.execute(""" SELECT description FROM subs WHERE numéro_projet=?""",(id,))
      test=cursor.fetchall()
      db.close()
      if test!=[]:
@@ -57,7 +57,7 @@ def test_login():
 def test_verif():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute(""" SELECT niveau FROM utilisateurs WHERE id_user=?""",(str(session.get('id'),)))
+     cursor.execute(""" SELECT niveau FROM utilisateurs WHERE id_user=?""",(str(session.get('id')),))
      test=cursor.fetchall()[0][0]
      db.close()
      if test=='B':
@@ -522,7 +522,8 @@ def updatecompteurpostpositif(id):
      if test_verif():
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          id_sub = cursor.fetchall(cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?"),(id,))
+          cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?",(id,))
+          id_sub = cursor.fetchall()[0][0]
           if test_id_sub(id_sub):
                cursor.execute("UPDATE posts SET ratio= ratio +1 WHERE id_post=?",(id,))
                db.commit()
@@ -541,7 +542,8 @@ def updatecompteurpostnegatif(id):
      if test_verif():
           db = sqlite3.connect('database.db')
           cursor = db.cursor()
-          id_sub = cursor.fetchall(cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?"),(id,))
+          cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?",(id,))
+          id_sub = cursor.fetchall()[0][0]
           if test_id_sub(id_sub):
                cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
                db.commit()

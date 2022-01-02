@@ -114,13 +114,23 @@ def a_demande(id,user):
 def commentaire(id_com,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+     cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
      likeur=cursor.fetchall()
-     db.close()
-     if user not in likeur[0][0].split('/'):
-          return True
+     if likeur!=[]:
+          if (user,) not in likeur:
+               db.close()
+               return (True,True)
+          else:
+               cursor.execute("SELECT val FROM Vote_com WHERE id_com=? AND id_voteur=?",(id_com,str(user)))
+               val=cursor.fetchall()
+               db.close()
+               if val[0][0]=='P':
+                    return (False,True)
+               else:
+                    return (True,False)
      else: 
-          return False
+          db.close()
+          return (True,True)
 
 
 
@@ -189,9 +199,20 @@ def accueil():
      id_user = session.get('id')
      cursor.execute(query,(id_user,id_user))
      L = cursor.fetchall()
+     comments={}
+     for row in L:
+          idpost=row[5]
+          cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+          données=cursor.fetchall()   
+          if données!=[]:
+               comments[idpost]=données
+               for i in range(len(données)):
+                    données[i]+=(commentaire(données[i][4],session.get('id')),) 
+          else:
+               comments[idpost]=[]
      db.close()
      os.path.isfile("static/img/uploads/")
-     return render_template('accueil.html',data = L)
+     return render_template('accueil.html',data = L,comments=comments)
 
 @app.route('/form')
 def form():
@@ -444,7 +465,7 @@ def viewpost(id):
                     if données!=[]:
                          comments[idpost]=données
                          for i in range(len(données)):
-                              données[i]+=(commentaire(données[i][4],str(session.get('id'))),) 
+                              données[i]+=(commentaire(données[i][4],session.get('id')),) 
                     else:
                          comments[idpost]=[]
                db.close()
@@ -698,7 +719,7 @@ def post_commentaire(id):
                content=request.form.to_dict()
                user=str(session.get("id"))
                if request.method=='POST':
-                    cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,likeur,upvote) VALUES (?,?,?,?,?)',(content['commentaire'],user,id,'/'+user,0))
+                    cursor.execute('INSERT INTO commentaires(contenu,posté_par,id_post,upvote) VALUES (?,?,?,?)',(content['commentaire'],user,id,0))
                     db.commit()
                cursor.execute("SELECT id_sub FROM posts WHERE id_post = ?",(id,))
                id_sub = cursor.fetchall()[0][0]
@@ -755,11 +776,51 @@ def upvote(id_com):
      cursor = db.cursor()
      if test_login():
           if test_verif():
-               cursor.execute("SELECT likeur FROM commentaires WHERE id_commentaire=?",(id_com,))
+               cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
                likeur=cursor.fetchall()
-               if str(session.get('id')) not in likeur[0][0].split('/'):
-                    likeur=likeur[0][0]+'/'+str(session.get('id'))
-                    cursor.execute("UPDATE commentaires SET upvote=upvote+1, likeur=? WHERE id_commentaire=?",(likeur,id_com))
+               if likeur==[]:
+                    cursor.execute("INSERT INTO Vote_com(id_com,id_voteur,val) VALUES(?,?,?)",(id_com,str(session.get('id')),'P'))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote+1 WHERE id_commentaire=?",(id_com,))
+                    db.commit()
+               elif (session.get('id'),) not in likeur:
+                    cursor.execute("INSERT INTO Vote_com(id_com,id_voteur,val) VALUES(?,?,?)",(id_com,str(session.get('id')),'P'))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote+1 WHERE id_commentaire=?",(id_com,))
+                    db.commit()
+               elif (session.get('id'),) in likeur:
+                    cursor.execute("UPDATE Vote_com SET val=? WHERE id_com=? AND id_voteur=?",('P',id_com,str(session.get('id'))))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote+1 WHERE id_commentaire=?",(id_com,))
+                    db.commit()
+               cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
+               id=cursor.fetchall()[0][0]
+               db.close()
+               return redirect('/sub/'+str(id)+'/post')
+          else:
+               db.close()
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
+     else:
+          db.close()
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
+
+@app.route('/downvote/<id_com>')
+def downvote(id_com):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_login():
+          if test_verif():
+               cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
+               likeur=cursor.fetchall()
+               print(likeur)
+               if likeur==[]:
+                    cursor.execute("INSERT INTO Vote_com(id_com,id_voteur,val) VALUES(?,?,?)",(id_com,str(session.get('id')),'N'))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote-1 WHERE id_commentaire=?",(id_com,))
+                    db.commit()
+               elif (session.get('id'),) not in likeur:
+                    cursor.execute("INSERT INTO Vote_com(id_com,id_voteur,val) VALUES(?,?,?)",(id_com,str(session.get('id')),'N'))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote-1 WHERE id_commentaire=?",(id_com,))
+                    db.commit()
+               elif (session.get('id'),) in likeur:
+                    cursor.execute("UPDATE Vote_com SET val=? WHERE id_com=? AND id_voteur=?",('N',id_com,str(session.get('id'))))
+                    cursor.execute("UPDATE commentaires SET upvote=upvote-1 WHERE id_commentaire=?",(id_com,))
                     db.commit()
                cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
                id=cursor.fetchall()[0][0]

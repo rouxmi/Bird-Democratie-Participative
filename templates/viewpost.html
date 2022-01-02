@@ -85,10 +85,16 @@
                           <div class = "card-body">
                             <h4 class = "card-title" style='display: inline;'>{{comment[3]}}</h4>
                             <span class="thumbup" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-up"></i></span>
-                              {% if comment[5] %}
+                              {% if comment[5][0] %}
                                 <a class = "btn btn-block btn-secondary"  href="/upvote/{{comment[4]}}" >Upvote</a>
                               {% else %}
                                 <a class = "btn btn-block btn-secondary disabled" href="/upvote/{{comment[4]}}" >Upvote</a>
+                              {% endif %}
+                            <span class="thumdown" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-down"></i></span>
+                              {% if comment[5][1] %}
+                                <a class = "btn btn-block btn-secondary"  href="/downvote/{{comment[4]}}" >Downvote</a>
+                              {% else %}
+                                <a class = "btn btn-block btn-secondary disabled" href="/downvote/{{comment[4]}}" >Downvote</a>
                               {% endif %}
                           </div>
                         </div>

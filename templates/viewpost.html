@@ -50,7 +50,7 @@
           <h3 class="card-title">{{item[1]}}</h3>
           <p class="card-text">{{item[2]}}</p>
           {% if  os.path.isfile("static/img/uploads/"~item[0]) == True %}
-                        <img src="static/img/uploads/{{item[0]}}" class= image_post style='height:345px ;
+                        <img src="/static/img/uploads/{{item[0]}}" class= image_post style='height:345px ;
                         width: auto ; ' >  
                         <hr>
           {% endif %}

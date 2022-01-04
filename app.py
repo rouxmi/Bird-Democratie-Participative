@@ -132,6 +132,27 @@ def commentaire(id_com,user):
           db.close()
           return (True,True)
 
+def likepost(id_post,user):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute("SELECT id_voteur FROM Vote_post WHERE id_post=?",(id_post,))
+     likeur=cursor.fetchall()
+     if likeur!=[]:
+          if (user,) not in likeur:
+               db.close()
+               return (True,True)
+          else:
+               cursor.execute("SELECT val FROM Vote_post WHERE id_post=? AND id_voteur=?",(id_post,str(user)))
+               val=cursor.fetchall()
+               db.close()
+               if val[0][0]=='P':
+                    return (False,True)
+               else:
+                    return (True,False)
+     else: 
+          db.close()
+          return (True,True)
+
 
 
 @app.route('/')
@@ -161,7 +182,6 @@ def connect():
      else:
           db.close()
           return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))
-
      
 
 @app.route('/register')
@@ -336,7 +356,6 @@ def viewsub(id):
                participant = est_participant(id,user_id)
                demande = a_demande(id,user_id)
                db.close()
-               print(data)
                return render_template('viewsub.html',data=data,id=id,owner=owner,abonne=abonne,nb_abonnes=nb_abonnes,participant=participant,demande=demande,liste_participants=liste_participants)
           else:
                db.close()
@@ -458,10 +477,13 @@ def viewpost(id):
                cursor.execute(query,(id,))
                L =(cursor.fetchall(),id)
                comments={}
+               like={}
                for row in L[0]:
                     idpost=row[0]
                     cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
-                    données=cursor.fetchall()   
+                    données=cursor.fetchall()
+                    cursor.execute('''SELECT ratio FROM posts WHERE id_post=? ''',(idpost,))
+                    like[idpost]=[likepost(idpost,session.get('id')),cursor.fetchall()[0][0]]
                     if données!=[]:
                          comments[idpost]=données
                          for i in range(len(données)):
@@ -473,7 +495,8 @@ def viewpost(id):
                abonne = est_abonne(id,user)
                owner = is_owner(id,user)
                participant = est_participant(id,user)
-               return render_template('viewpost.html', data=L,comments=comments,id=id,abonne=abonne,owner=owner,participant=participant)
+               os.path.isfile("static/img/uploads/")
+               return render_template('viewpost.html', data=L,comments=comments,id=id,abonne=abonne,owner=owner,participant=participant,like=like)
           else:
                return redirect('/')
      else:
@@ -516,16 +539,16 @@ def postsub(id):
                          split_tup = os.path.splitext(image.filename)
                          file_extension = split_tup[1]
                          if image.filename == "":
-                              print("pas de nom")
+                              #"pas de nom"
                               return redirect('/sub/'+str(id)+'/creationpost')
 
                          if allowed_image(image.filename):
                               image.save(os.path.join(app.config["IMAGE_UPLOADS"], str(idpost[0][0])))
-                              print("image sauvegardé")
+                              #"image sauvegardé"
                               return redirect('/sub/'+str(id)+'/creationpost')
                          
                          else:
-                              print("type de fichier non supporté")
+                              #"type de fichier non supporté"
                               return redirect('/sub/'+str(id)+'/creationpost')
                     return redirect('/sub/'+str(id)+'/creationpost')
                return render_template('newpost.html')
@@ -809,7 +832,6 @@ def downvote(id_com):
           if test_verif():
                cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
                likeur=cursor.fetchall()
-               print(likeur)
                if likeur==[]:
                     cursor.execute("INSERT INTO Vote_com(id_com,id_voteur,val) VALUES(?,?,?)",(id_com,str(session.get('id')),'N'))
                     cursor.execute("UPDATE commentaires SET upvote=upvote-1 WHERE id_commentaire=?",(id_com,))
@@ -823,6 +845,68 @@ def downvote(id_com):
                     cursor.execute("UPDATE commentaires SET upvote=upvote-1 WHERE id_commentaire=?",(id_com,))
                     db.commit()
                cursor.execute("SELECT id_sub FROM posts JOIN commentaires ON commentaires.id_post=posts.id_post WHERE commentaires.id_commentaire=?",(id_com,))
+               id=cursor.fetchall()[0][0]
+               db.close()
+               return redirect('/sub/'+str(id)+'/post')
+          else:
+               db.close()
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
+     else:
+          db.close()
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
+
+@app.route('/like/<id_post>')
+def uplike(id_post):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_login():
+          if test_verif():
+               cursor.execute("SELECT id_voteur FROM Vote_post WHERE id_post=?",(id_post,))
+               likeur=cursor.fetchall()
+               if likeur==[]:
+                    cursor.execute("INSERT INTO Vote_post(id_post,id_voteur,val) VALUES(?,?,?)",(id_post,str(session.get('id')),'P'))
+                    cursor.execute("UPDATE posts SET ratio=ratio+1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               elif (session.get('id'),) not in likeur:
+                    cursor.execute("INSERT INTO Vote_post(id_post,id_voteur,val) VALUES(?,?,?)",(id_post,str(session.get('id')),'P'))
+                    cursor.execute("UPDATE posts SET ratio=ratio+1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               elif (session.get('id'),) in likeur:
+                    cursor.execute("UPDATE Vote_post SET val=? WHERE id_post=? AND id_voteur=?",('P',id_post,str(session.get('id'))))
+                    cursor.execute("UPDATE posts SET ratio=ratio+1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               cursor.execute("SELECT id_sub FROM posts WHERE  id_post=?",(id_post,))
+               id=cursor.fetchall()[0][0]
+               db.close()
+               return redirect('/sub/'+str(id)+'/post')
+          else:
+               db.close()
+               return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
+     else:
+          db.close()
+          return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
+
+@app.route('/dislike/<id_post>')
+def downlike(id_post):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     if test_login():
+          if test_verif():
+               cursor.execute("SELECT id_voteur FROM Vote_post WHERE id_post=?",(id_post,))
+               likeur=cursor.fetchall()
+               if likeur==[]:
+                    cursor.execute("INSERT INTO Vote_post(id_post,id_voteur,val) VALUES(?,?,?)",(id_post,str(session.get('id')),'N'))
+                    cursor.execute("UPDATE posts SET ratio=ratio-1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               elif (session.get('id'),) not in likeur:
+                    cursor.execute("INSERT INTO Vote_post(id_post,id_voteur,val) VALUES(?,?,?)",(id_post,str(session.get('id')),'N'))
+                    cursor.execute("UPDATE posts SET ratio=ratio-1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               elif (session.get('id'),) in likeur:
+                    cursor.execute("UPDATE Vote_post SET val=? WHERE id_post=? AND id_voteur=?",('N',id_post,str(session.get('id'))))
+                    cursor.execute("UPDATE posts SET ratio=ratio-1 WHERE id_post=?",(id_post,))
+                    db.commit()
+               cursor.execute("SELECT id_sub FROM posts WHERE  id_post=?",(id_post,))
                id=cursor.fetchall()[0][0]
                db.close()
                return redirect('/sub/'+str(id)+'/post')

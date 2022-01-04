@@ -9,13 +9,14 @@ def recommandation(id):
     query='''SELECT Numéro_projet,Nom,Mots_clés FROM subs WHERE NOT Numéro_projet=?'''
     cursor.execute(query,(id,))
     L2=cursor.fetchall()
-    mots=L[0][1].replace(' ','').split(',')+L[0][0].replace(' ','').split(',')
+    mots=L[0][1].split(' ')+L[0][0].split(' ')
+    print(mots)
     numero_projet=[]
-    ban_list=['de','le','la','les','un','une','des','je','tu','il','nous','vous','ils','elle','elles','on','au','aux','à']
+    ban_list=['de','le','la','les','un','une','des','je','tu','il','nous','vous','ils','elle','elles','on','au','aux','à',' ','']
     for i in range(len(L2)):
         id=int(L2[i][0])
         comp=0
-        temp=L2[i][1].replace(' ','').split(',')+L2[i][2].replace(' ','').split(',')
+        temp=L2[i][1].split(' ')+L2[i][2].split(' ')
         for mot in mots:
             if mot not in ban_list:
                 if mot in temp:

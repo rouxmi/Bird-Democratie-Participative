@@ -1,5 +1,4 @@
 import sqlite3
-from sqlite3.dbapi2 import Cursor
 import os 
 from flask import Flask, render_template, request, url_for,redirect,flash,session
 import datetime
@@ -918,7 +917,7 @@ def downlike(id_post):
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
-@app.route("/sub/<numsub>/tchat", methods=["GET","POST"])
+@app.route("/sub/<numsub>/chat", methods=["GET","POST"])
 def chat(numsub):
      if test_login():
           if test_verif():

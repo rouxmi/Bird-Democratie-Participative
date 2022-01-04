@@ -7,7 +7,7 @@
 
 {% block content %}
 <link rel="stylesheet" href='/static/styles/accueil.css' />
-<body>
+<body style='background-color: rgb(73, 73, 73);'>
 <h1> Fil d'actualité </h1>
     <div class="card-columns">
     {% for item in data %}
@@ -28,6 +28,52 @@
                     <div class="btn-group">
                         <a class = "btn btn-block btn-secondary" href='/{{item[5]}}/ajoutcompteur'>LIKE</a>
                         <a class = "btn btn-block btn-secondary" href='/{{item[5]}}/retraitcompteur'>DISLIKE</a>
+                    </div>
+                    <div class="container justify-content-center mt-5 border-left border-right" style='display: inline-block;'>
+                        <form  action='/comment/{{item[0]}}'  method = "POST">
+                          <label for='commentaire' style='padding-left: 1.5rem'>Votre commentaire :</label>
+                          <textarea  type='text' name='commentaire' rows="6" placeholder="écrivez votre commentaire..."
+                        required
+                          minlength='1' maxlength='500' style="height: 30px; width: 45rem; display: block;
+                          margin-left: auto;
+                          margin-right: auto;"></textarea>
+                          <input type= "submit" value="Submit" style="display: block;
+                          justify-content: center; 
+                          width: 90px;
+                          border-radius: 4px;
+                          border-width: 1px;" >
+                        </input>
+                        </form>
+                        {% for comment in comments[item[5]] %}
+                        <div class="d-flex justify-content-center py-2">
+                          <link rel="stylesheet" href='/static/styles/commentaires.css' />
+                            <div class="second py-2 px-2"> <span class="text1" style="display: inline;">{{comment[0]}}</span>
+                                <div class="d-flex justify-content-between py-1 pt-2">
+                                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                                    <span class="text2" style="display: inline;">De {{comment[1]}} {{comment[2]}}</span></div>
+                                    <div><div class = "col">
+                                      <div class = "card">
+                                        <div class = "card-body">
+                                          <h4 class = "card-title" style='display: inline;'>{{comment[3]}}</h4>
+                                          <span class="thumbup" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-up"></i></span>
+                                            {% if comment[5][0] %}
+                                              <a class = "btn btn-block btn-secondary"  href="/upvote/{{comment[4]}}" >Upvote</a>
+                                            {% else %}
+                                              <a class = "btn btn-block btn-secondary disabled" href="/upvote/{{comment[4]}}" >Upvote</a>
+                                            {% endif %}
+                                          <span class="thumdown" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-down"></i></span>
+                                            {% if comment[5][1] %}
+                                              <a class = "btn btn-block btn-secondary"  href="/downvote/{{comment[4]}}" >Downvote</a>
+                                            {% else %}
+                                              <a class = "btn btn-block btn-secondary disabled" href="/downvote/{{comment[4]}}" >Downvote</a>
+                                            {% endif %}
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
         </div>

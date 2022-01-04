@@ -49,13 +49,23 @@
         <div class="card-body">
           <h3 class="card-title">{{item[1]}}</h3>
           <p class="card-text">{{item[2]}}</p>
-          {% if  os.path.isfile("static/img/uploads/"~item[5]) == True %}
-            <img src="static/img/uploads/{{item[5]}}" class= image_post > 
-            <hr>
+          {% if  os.path.isfile("static/img/uploads/"~item[0]) == True %}
+                        <img src="static/img/uploads/{{item[0]}}" class= image_post style='height:345px ;
+                        width: auto ; ' >  
+                        <hr>
           {% endif %}
           <footer class = "blockquote-footer">Posté le {{item[4]}}</footer>
-          <button class = "btn btn-block btn-secondary">LIKE</button>
-          <button class = "btn btn-block btn-secondary">DISLIKE</button>
+          <p class='like'>{{like[item[0]][1]}} likes</p>
+          {% if like[item[0]][0][0] %}
+              <a class = "btn btn-block btn-secondary"  href='/like/{{item[0]}}'>LIKE</a>
+          {% else %}
+              <a class = "btn btn-block btn-secondary disabled" href='/like/{{item[0]}}'>LIKE</a>
+          {% endif %}
+          {% if like[item[0]][0][1] %}
+              <a class = "btn btn-block btn-secondary"  href='/dislike/{{item[0]}}'>DISLIKE</a>
+          {% else %}
+              <a class = "btn btn-block btn-secondary disabled" href='/dislike/{{item[0]}}'>DISLIKE</a>
+          {% endif %}
             
         </div>
         <div class="container justify-content-center mt-5 border-left border-right" style='display: inline-block;'>
@@ -85,10 +95,16 @@
                           <div class = "card-body">
                             <h4 class = "card-title" style='display: inline;'>{{comment[3]}}</h4>
                             <span class="thumbup" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-up"></i></span>
-                              {% if comment[5] %}
+                              {% if comment[5][0] %}
                                 <a class = "btn btn-block btn-secondary"  href="/upvote/{{comment[4]}}" >Upvote</a>
                               {% else %}
                                 <a class = "btn btn-block btn-secondary disabled" href="/upvote/{{comment[4]}}" >Upvote</a>
+                              {% endif %}
+                            <span class="thumdown" style="display: inline-block; font-size:24px"><i class="fa fa-thumbs-o-down"></i></span>
+                              {% if comment[5][1] %}
+                                <a class = "btn btn-block btn-secondary"  href="/downvote/{{comment[4]}}" >Downvote</a>
+                              {% else %}
+                                <a class = "btn btn-block btn-secondary disabled" href="/downvote/{{comment[4]}}" >Downvote</a>
                               {% endif %}
                           </div>
                         </div>

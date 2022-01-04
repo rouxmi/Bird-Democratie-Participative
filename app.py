@@ -926,7 +926,7 @@ def chat(numsub):
                     db = sqlite3.connect('database.db')
                     cursor = db.cursor()
                     id_posteur=session.get('id')
-                    cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur""",(numsub,))
+                    cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur ORDER BY date""",(numsub,))
                     data=cursor.fetchall()
                     if request.method=='POST':
                          now = time.localtime(time.time())

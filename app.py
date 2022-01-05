@@ -697,7 +697,7 @@ def validation_utilisateur():
 def update_niveau(id,niveau):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
-     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id))
+     cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(id,))
      niv=cursor.fetchall()
      cursor.execute("SELECT niveau FROM utilisateurs WHERE id_user=?",(session.get('id'),))
      user=cursor.fetchall()[0][0]

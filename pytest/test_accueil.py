@@ -9,10 +9,10 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id',[(5),(43),(34),(32),(37),(25),(143),('z'),(132),(24)])
+
 #cross check en regardant dans la BD
-def test_abo(base,id):
+def test_acceuil(base):
     connect(base)
-    response = base.get('/'+str(id)+'/abonnement')
-    assert response.status_code == 302
+    response = base.get('/')
+    assert response.status_code == 302 or response.status_code == 200
 

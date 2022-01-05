@@ -1,5 +1,4 @@
 import pytest
-from app import viewsub
 import app
 
 def connect(ses):
@@ -10,9 +9,10 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id',[(18),(14),(0),(20),(None),('ahgah')])
-
-def test_(base,id):
+@pytest.mark.parametrize('id',[(7),(23),(54),(12),(17),(35),(43),(34),(42),('a'),(0)])
+#cross check en regardant dans la BD
+def test_upvote(base,id):
     connect(base)
-    response = base.get('/sub/{id}')
+    response = base.get('/upvote/'+str(id))
     assert response.status_code == 302 or response.status_code == 200
+

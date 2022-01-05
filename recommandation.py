@@ -10,7 +10,6 @@ def recommandation(id):
     cursor.execute(query,(id,))
     L2=cursor.fetchall()
     mots=L[0][1].split(' ')+L[0][0].split(' ')
-    print(mots)
     numero_projet=[]
     ban_list=['de','le','la','les','un','une','des','je','tu','il','nous','vous','ils','elle','elles','on','au','aux','à',' ','']
     for i in range(len(L2)):

@@ -1,5 +1,5 @@
 import pytest
-from app import desabonnement
+from app import newpost
 import app
 
 def connect(ses):

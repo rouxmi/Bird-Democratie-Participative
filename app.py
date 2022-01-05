@@ -226,7 +226,7 @@ def enregistre():
                db.close()
                return render_template('register.html',message='mail déjà utilisé')
           else:
-               cursor.execute(""" INSERT INTO utilisateurs(nom,prénom,mail,mdp,Niveau) values(?,?,?,?,?)""",(str(form['nom']),str(form['prénom']),str(form['mail']),str(form['mdp']),'A'))
+               cursor.execute(""" INSERT INTO utilisateurs(nom,prénom,mail,mdp,Niveau) values(?,?,?,?,?)""",(str(form['nom']),str(form['prénom']),str(form['mail']),str(form['mdp']),'B'))
                db.commit()
                db.close()
                return redirect('/')
@@ -234,7 +234,7 @@ def enregistre():
           return redirect('/')
 
 
-# Route lié à la page d'accueil qui affiche le fil d'actualité
+# Route lié à la page d'accueil qui affiche le fil d'actualités
 @app.route('/accueil')
 def accueil():
      # Sélection des posts liés aux projets abonnés et créés par l'utilisateur, tri par ordre décroissant de date de création

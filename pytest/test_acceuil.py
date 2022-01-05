@@ -14,5 +14,5 @@ def base():
 def test_acceuil(base):
     connect(base)
     response = base.get('/')
-    assert response.status_code == 302
+    assert response.status_code == 302 or response.status_code == 200
 

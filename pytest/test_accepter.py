@@ -9,7 +9,7 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id,user',[(2,15),(4,13),(6,64),(7,32),(10,37),(87,15),(32,23),(16,74),(9,12),(42,19)])
+@pytest.mark.parametrize('id,user',[('oui',15),(4,'ok'),(6,64),(7,32),(10,37),('oui','e'),(32,23),(16,74),(9,12),(42,19)])
 #cross check en regardant dans la BD
 def test_upvote(base,id,user):
     connect(base)

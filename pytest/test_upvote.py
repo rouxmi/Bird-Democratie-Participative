@@ -9,9 +9,9 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id',[(7),(23),(54),(12),(17),(35),(43),(34),(42),(9)])
+@pytest.mark.parametrize('id',[(7),(23),(54),(12),(17),(35),(43),(34),(42),('a')])
 #cross check en regardant dans la BD
-def test_upvote(base):
+def test_upvote(base,id):
     connect(base)
     response = base.get('/upvote/'+str(id))
     assert response.status_code == 302 or response.status_code == 200

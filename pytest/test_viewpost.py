@@ -9,7 +9,7 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id',[(5),(43),(34),(32),(37),(25),(143),(434),(132),(24)])
+@pytest.mark.parametrize('id',[(5),(43),(34),(32),(37),(25),(143),(434),(132),('t')])
 #cross check en regardant dans la BD
 def test_viewpost(base,id):
     connect(base)

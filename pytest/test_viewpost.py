@@ -2,7 +2,7 @@ import pytest
 import app
 
 def connect(ses):
-    ses.post('/connect',data={'username':'MICHEL.Louise@gmail.com','password':'qS8rb5l9guE'},follow_redirects=True)
+    ses.post('/connect',data={'username':'DUBOIS.MaÃ«l@gmail.com','password':'0iFAkzJlSOxv'},follow_redirects=True)
 
 @pytest.fixture
 def base():
@@ -11,8 +11,8 @@ def base():
 
 @pytest.mark.parametrize('id',[(5),(43),(34),(32),(37),(25),(143),(434),(132),(24)])
 #cross check en regardant dans la BD
-def test_abo(base,id):
+def test_viewpost(base,id):
     connect(base)
-    response = base.get('/'+str(id)+'/abonnement')
-    assert response.status_code == 302
+    response = base.get('/sub/'+str(id)+'/post')
+    assert response.status_code == 302 or response.status_code == 200
 

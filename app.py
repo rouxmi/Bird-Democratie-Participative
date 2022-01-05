@@ -220,10 +220,13 @@ def accueil():
      cursor.execute(query,(id_user,id_user))
      L = cursor.fetchall()
      comments={}
+     like={}
      for row in L:
           idpost=row[5]
           cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user ORDER BY upvote DESC' ,(idpost,))
-          données=cursor.fetchall()   
+          données=cursor.fetchall() 
+          cursor.execute('''SELECT ratio FROM posts WHERE id_post=? ''',(idpost,))
+          like[idpost]=[likepost(idpost,session.get('id')),cursor.fetchall()[0][0]]  
           if données!=[]:
                comments[idpost]=données
                for i in range(len(données)):
@@ -232,7 +235,7 @@ def accueil():
                comments[idpost]=[]
      db.close()
      os.path.isfile("static/img/uploads/")
-     return render_template('accueil.html',data = L,comments=comments)
+     return render_template('accueil.html',data = L,comments=comments,like=like)
 
 @app.route('/form')
 def form():
@@ -579,27 +582,7 @@ def updatecompteurpostpositif(id):
                return redirect('/')
      else:
           return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
-
-
-# Route liée au bouton Dislike du post d'id_post 'id'
-@app.route('/<id>/retraitcompteur')
-def updatecompteurpostnegatif(id):
-     if test_verif():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?",(id,))
-          id_sub = cursor.fetchall()[0][0]
-          if test_id_sub(id_sub):
-               cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
-               db.commit()
-               db.close()
-               return redirect('/')
-          else:
-               db.close()
-               return redirect('/')
-     else:
-          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
-    
+   
 
 # Route liée à l'onglet Demande de participation du projet n° 'id'
 @app.route('/sub/<id>/demandes')

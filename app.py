@@ -77,6 +77,28 @@ def is_owner(id,user):
      else: 
           return False
 
+def com_existe(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT * FROM posts WHERE id_post=?""",(id,))
+     test=cursor.fetchall()
+     db.close()
+     if test!=[]:
+          return True
+     else: 
+          return False
+     
+def post_existe(id):
+     db = sqlite3.connect('database.db')
+     cursor = db.cursor()
+     cursor.execute(""" SELECT * FROM commentaires WHERE id_commentaire=?""",(id,))
+     test=cursor.fetchall()
+     db.close()
+     if test!=[]:
+          return True
+     else: 
+          return False
+
 def est_abonne(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -785,7 +807,7 @@ def upvote(id_com):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          if test_verif():
+          if test_verif() and com_existe(id_com):
                cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
                likeur=cursor.fetchall()
                if likeur==[]:
@@ -816,7 +838,7 @@ def downvote(id_com):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          if test_verif():
+          if test_verif() and com_existe(id_com):
                cursor.execute("SELECT id_voteur FROM Vote_com WHERE id_com=?",(id_com,))
                likeur=cursor.fetchall()
                if likeur==[]:
@@ -847,7 +869,7 @@ def uplike(id_post):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          if test_verif():
+          if test_verif() and post_existe(id_post):
                cursor.execute("SELECT id_voteur FROM Vote_post WHERE id_post=?",(id_post,))
                likeur=cursor.fetchall()
                if likeur==[]:
@@ -878,7 +900,7 @@ def downlike(id_post):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          if test_verif():
+          if test_verif() and post_existe(id_post):
                cursor.execute("SELECT id_voteur FROM Vote_post WHERE id_post=?",(id_post,))
                likeur=cursor.fetchall()
                if likeur==[]:

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-
+<link rel="stylesheet" href='/static/styles/participants.css' />
 <ul class="nav nav-tabs navbar-dark bg-dark">
     <li class="nav-item">
       <a class="nav-link" aria-current="page" href="/sub/{{ id }} ">Description</a>
@@ -30,15 +30,15 @@
     <div class = "row">
         <h1> Demande de participations</h1>
     </div>
-    <div class = "row">
+    <div class = "wrapper">
         {% for item in data %}
-        <ul class="col-4">
-            <li>Nom : {{item[1]}}</li>
-            <li>Prénom : {{item[2]}}</li>
-        </ul>
-        <div class="col-4">
+        <div class="list-group-item-action flex align-items">
+        <div class='personne'>
+            <p>Nom : {{item[1]}}</p>
+            <p>Prénom : {{item[2]}}</p>
             <a class="btn btn-secondary" href="/{{id}}/accepter/{{item[0]}}">Accepter</a>
             <a class="btn btn-secondary" href="/{{id}}/refuser/{{item[0]}}">Refuser </a>
+        </div>
         </div>
         {% endfor %}
     </div>

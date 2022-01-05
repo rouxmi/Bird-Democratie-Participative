@@ -1,0 +1,24 @@
+
+h1{
+    text-align: center;
+    background-color:rgb(73, 73, 73) ;
+    padding : 20px;
+}
+
+a{
+    text-decoration: none;
+}
+
+.titre{
+    text-align: center;
+    background-color:rgb(162, 162, 162) ;
+    padding : 20px;
+}
+.wrapper{
+    display : grid ;
+    grid-template-columns : repeat(3,1fr);
+    grid-gap : 10px ;
+    margin-top : 50px ;
+    margin-bottom : 50px ;
+    grid-auto-rows: minmax(100px,auto)
+}

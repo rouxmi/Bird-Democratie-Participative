@@ -179,6 +179,9 @@ def connect():
                session['username']=id[0][3]
                session['password']=verif
                return redirect('/accueil')
+          else:
+               db.close()
+               return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))
      else:
           db.close()
           return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))

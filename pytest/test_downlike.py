@@ -1,9 +1,9 @@
 import pytest
-from app import demande
+from app import downlike
 import app
 
 def connect(ses):
-    ses.post('/connect',data={'username':'MICHEL.Louise@gmail.com','password':'qS8rb5l9guEB'},follow_redirects=True)
+    ses.post('/connect',data={'username':'LEFEBVRE.Emma@gmail.com','password':'CCKBkgHqQZrJ'},follow_redirects=True)
 
 @pytest.fixture
 def base():
@@ -12,5 +12,5 @@ def base():
 
 def test_(base):
     connect(base)
-    response = base.get('/sub/7/demandes')
+    response = base.get('/dislike/81')
     assert response.status_code == 302 or response.status_code == 200

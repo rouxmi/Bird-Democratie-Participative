@@ -12,5 +12,5 @@ def base():
 
 def test_(base):
     connect(base)
-    response = base.get('/sub/7/demandes')
+    response = base.get('/sub/153/chat')
     assert response.status_code == 302 or response.status_code == 200

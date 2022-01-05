@@ -12,5 +12,5 @@ def base():
 
 def test_(base):
     connect(base)
-    response = base.get('/dislike/81')
+    response = base.get('/dislike/None')
     assert response.status_code == 302 or response.status_code == 200

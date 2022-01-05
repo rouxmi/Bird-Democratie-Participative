@@ -10,7 +10,9 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-def test_(base):
+@pytest.mark.parametrize('id',[(18),(14),(0),(20),(None),('ahgah')])
+
+def test_(base,id):
     connect(base)
-    response = base.get('/dislike/None')
+    response = base.get('/dislike/{id}')
     assert response.status_code == 302 or response.status_code == 200

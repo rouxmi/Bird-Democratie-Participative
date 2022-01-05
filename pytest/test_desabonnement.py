@@ -1,9 +1,7 @@
 import pytest
 from app import desabonnement
 import app
-"""
-@pytest.mark.parametrize('id,expect',[(7,1,True),(33,3,False),(22,25,False),(37,None,False)])
-"""
+
 def connect(ses):
     ses.post('/connect',data={'username':'ROUX.Ambre@gmail.com','password':'iaCDoj06BXUp'},follow_redirects=True)
 

@@ -1,6 +1,37 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+<ul class="nav nav-tabs navbar-dark bg-dark">
+    <li class="nav-item">
+      <a class="nav-link " aria-current="page" href="{{url_for('viewsub',id=numsub)}}">Description</a>
+    </li>
+    {% if owner or participant %}
+    <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="/sub/{{ numsub }}/post">Posts</a>     
+      </li>
+    <li class="nav-item">
+      <a class="nav-link">Calendrier</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="#">Chat</a>
+    </li>
+    {% else %}
+    <li class="nav-item active">
+      <a class="nav-link active" aria-current="page" href="/sub/{{numsub}}/post">Posts</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled">Calendrier</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link disabled">Chat</a>
+    </li>
+    {% endif %}
+    {% if owner %}
+    <li class="nav-item">
+      <a class="nav-link" aria-current="page" href="/sub/{{ numsub }}/demandes">Demandes de participation</a>
+    </li>
+    {% endif %}
+  </ul>
 
     <meta http-equiv="refresh" content="30" />
     <p>

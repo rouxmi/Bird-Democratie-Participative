@@ -1,5 +1,4 @@
 import sqlite3
-from sqlite3.dbapi2 import Cursor
 import os 
 from flask import Flask, render_template, request, url_for,redirect,flash,session
 import datetime
@@ -169,16 +168,17 @@ def connect():
      cursor = db.cursor()
      cursor.execute(""" SELECT mdp FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
      verif=cursor.fetchall()
-     if verif[0][0]==str(form_data['password']):
-          cursor.execute(""" SELECT id_user,nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
-          id=cursor.fetchall()
-          db.close()
-          session['id']=id[0][0]
-          session['nom']=id[0][1]
-          session['prénom']=id[0][2]
-          session['username']=id[0][3]
-          session['password']=verif
-          return redirect('/accueil')
+     if verif!=[]:
+          if verif[0][0]==str(form_data['password']):
+               cursor.execute(""" SELECT id_user,nom,prénom,mail FROM utilisateurs WHERE mail=?""",(str(form_data['username']),))
+               id=cursor.fetchall()
+               db.close()
+               session['id']=id[0][0]
+               session['nom']=id[0][1]
+               session['prénom']=id[0][2]
+               session['username']=id[0][3]
+               session['password']=verif
+               return redirect('/accueil')
      else:
           db.close()
           return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))
@@ -220,10 +220,13 @@ def accueil():
      cursor.execute(query,(id_user,id_user))
      L = cursor.fetchall()
      comments={}
+     like={}
      for row in L:
           idpost=row[5]
-          cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
-          données=cursor.fetchall()   
+          cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user ORDER BY upvote DESC' ,(idpost,))
+          données=cursor.fetchall() 
+          cursor.execute('''SELECT ratio FROM posts WHERE id_post=? ''',(idpost,))
+          like[idpost]=[likepost(idpost,session.get('id')),cursor.fetchall()[0][0]]  
           if données!=[]:
                comments[idpost]=données
                for i in range(len(données)):
@@ -232,7 +235,7 @@ def accueil():
                comments[idpost]=[]
      db.close()
      os.path.isfile("static/img/uploads/")
-     return render_template('accueil.html',data = L,comments=comments)
+     return render_template('accueil.html',data = L,comments=comments,like=like)
 
 @app.route('/form')
 def form():
@@ -308,15 +311,16 @@ def recom():
           if test_verif():
                db = sqlite3.connect('database.db')
                cursor = db.cursor()
-               cursor.execute("SELECT sub FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+               cursor.execute("SELECT sub FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id")),))
                abonnement=cursor.fetchall()
-               cursor.execute("SELECT numéro_projet FROM subs WHERE créé_par=?",(str(session.get("id"))))
+               cursor.execute("SELECT numéro_projet FROM subs WHERE créé_par=?",(str(session.get("id")),))
                abonnement+=cursor.fetchall()
                total={}
                for i in range(len(abonnement)):
                     abonnement[i]=abonnement[i][0]
                for i in range(len(abonnement)):
                     temp=recommandation(abonnement[i])
+                    print(temp)
                     for j in range(len(temp)):
                          if temp[j][0] not in abonnement:
                               if temp[j][0] in total:
@@ -480,7 +484,7 @@ def viewpost(id):
                like={}
                for row in L[0]:
                     idpost=row[0]
-                    cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user' ,(idpost,))
+                    cursor.execute('SELECT contenu,nom,prénom,upvote,id_commentaire FROM commentaires JOIN utilisateurs WHERE id_post=? AND posté_par=id_user ORDER BY upvote DESC' ,(idpost,))
                     données=cursor.fetchall()
                     cursor.execute('''SELECT ratio FROM posts WHERE id_post=? ''',(idpost,))
                     like[idpost]=[likepost(idpost,session.get('id')),cursor.fetchall()[0][0]]
@@ -578,27 +582,7 @@ def updatecompteurpostpositif(id):
                return redirect('/')
      else:
           return render_template('erreur.html',message="Accès refusé",description="Vous n'avez pas les droits d'accès nécessaires") 
-
-
-# Route liée au bouton Dislike du post d'id_post 'id'
-@app.route('/<id>/retraitcompteur')
-def updatecompteurpostnegatif(id):
-     if test_verif():
-          db = sqlite3.connect('database.db')
-          cursor = db.cursor()
-          cursor.execute("SELECT id_sub FROM posts WHERE id_post= ?",(id,))
-          id_sub = cursor.fetchall()[0][0]
-          if test_id_sub(id_sub):
-               cursor.execute("UPDATE posts SET ratio= ratio -1 WHERE id_post=?",(id,))
-               db.commit()
-               db.close()
-               return redirect('/')
-          else:
-               db.close()
-               return redirect('/')
-     else:
-          return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires") 
-    
+   
 
 # Route liée à l'onglet Demande de participation du projet n° 'id'
 @app.route('/sub/<id>/demandes')
@@ -762,7 +746,7 @@ def affichageabonnements():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
+          cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id")),))
           L=cursor.fetchall()
           db.close()
           return render_template('mesabonnements.html',data=L)
@@ -784,7 +768,7 @@ def affichageprojets():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
      if test_login():
-          cursor.execute("SELECT numéro_projet, nom, mots_clés, description, création FROM subs WHERE créé_par=?",(str(session.get("id"))))
+          cursor.execute("SELECT numéro_projet, nom, mots_clés, description, création FROM subs WHERE créé_par=?",(str(session.get("id")),))
           L=cursor.fetchall()
           db.close()
           return render_template('mesprojets.html',data=L)
@@ -918,7 +902,7 @@ def downlike(id_post):
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
-@app.route("/sub/<numsub>/tchat", methods=["GET","POST"])
+@app.route("/sub/<numsub>/chat", methods=["GET","POST"])
 def chat(numsub):
      if test_login():
           if test_verif():
@@ -927,7 +911,7 @@ def chat(numsub):
                     db = sqlite3.connect('database.db')
                     cursor = db.cursor()
                     id_posteur=session.get('id')
-                    cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur""",(numsub,))
+                    cursor.execute("""SELECT nom,prénom,message,date FROM chat JOIN utilisateurs WHERE numsub = ? AND id_user=id_posteur ORDER BY date""",(numsub,))
                     data=cursor.fetchall()
                     if request.method=='POST':
                          now = time.localtime(time.time())
@@ -936,7 +920,10 @@ def chat(numsub):
                          INSERT INTO chat(numsub,id_posteur,message,date) values(?,?,?,?)""",(numsub,id_posteur,str(message),time.strftime("%y/%m/%d %H:%M", now)))
                          db.commit()
                          db.close()
-                    return render_template('chat.html',data=data,numsub=numsub)
+                    abonne = est_abonne(numsub,user)
+                    owner = is_owner(numsub,user)
+                    participant = est_participant(numsub,user)
+                    return render_template('chat.html',data=data,numsub=numsub,abonne=abonne,owner=owner,participant=participant)
                else :
                     return render_template('erreur.html',message="Accès refusé au chat",description="Vous n'êtes ni le créateur du projet ni un participant") 
     

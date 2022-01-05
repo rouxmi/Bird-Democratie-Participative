@@ -48,7 +48,7 @@ def createDButilisateurs():
 def createDBcommentaires():
     db = sqlite3.connect('database.db')
     cursor = db.cursor()
-    cursor.execute("CREATE TABLE commentaires(id_commentaire INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER,likeur TEXT,upvote INTEGER,dislikeur TEXT,downvote INTEGER,FOREIGN KEY(id_post) REFERENCES posts(id_post),FOREIGN KEY(posté_par) REFERENCES utilisateur(id_user)) ")
+    cursor.execute("CREATE TABLE commentaires(id_commentaire INTEGER PRIMARY KEY AUTOINCREMENT, contenu TEXT,posté_par INTEGER,id_post INTEGER,upvote INTEGER,FOREIGN KEY(id_post) REFERENCES posts(id_post),FOREIGN KEY(posté_par) REFERENCES utilisateur(id_user)) ")
     db.commit()
     db.close()
 
@@ -56,5 +56,19 @@ def createDBchat():
     db = sqlite3.connect('database.db')
     cursor = db.cursor()
     cursor.execute("CREATE TABLE chat(id INTEGER PRIMARY KEY AUTOINCREMENT,numsub INTEGER,id_posteur INTEGER,message TEXT,date DATETIME,FOREIGN KEY(numsub) REFERENCES subs(numéro_projet),FOREIGN KEY(id_posteur) REFERENCES utilisateur(id_user)) ")
+    db.commit()
+    db.close()
+
+def createDBvotepost():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor()
+    cursor.execute('CREATE TABLE "Vote_post" ("id_voteur"	INTEGER NOT NULL,"id_vote"	INTEGER NOT NULL UNIQUE,"id_post"	INTEGER NOT NULL,"val"	TEXT NOT NULL, PRIMARY KEY("id_vote" AUTOINCREMENT));')
+    db.commit()
+    db.close()
+
+def createDBvotecom():
+    db = sqlite3.connect('database.db')
+    cursor = db.cursor('CREATE TABLE "Vote_com" ("id_voteur"	INTEGER NOT NULL,"id_vote"	INTEGER NOT NULL UNIQUE,"id_com"	INTEGER NOT NULL,"val"	TEXT NOT NULL,PRIMARY KEY("id_vote" AUTOINCREMENT));')
+    cursor.execute()
     db.commit()
     db.close()

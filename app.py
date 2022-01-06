@@ -22,7 +22,7 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG", "JPG", "PNG", "GIF"]
 
 app.secret_key=os.urandom(12)
 
-
+#vérifie si le fichier fournis est une image
 def allowed_image(filename):
 
     if not "." in filename:
@@ -35,6 +35,7 @@ def allowed_image(filename):
     else:
         return False
 
+#vérifie si l'id du sub est valide
 def test_id_sub(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -46,13 +47,14 @@ def test_id_sub(id):
      else: 
           return False
      
-
+#vérifie qu'un utilisateur est bien connecter
 def test_login():
      if session.get("id")!=None:
           return True
      else:
           return False
-     
+
+#vérifie si l'utilisateurs est validé par un admin   
 def test_verif():
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -65,7 +67,7 @@ def test_verif():
           return True
 
 
-
+#vérifie si l'utilisateurs possède le sub connect
 def is_owner(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -77,6 +79,7 @@ def is_owner(id,user):
      else: 
           return False
 
+#verifie que l'id du commentaire existe
 def com_existe(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -87,7 +90,8 @@ def com_existe(id):
           return True
      else: 
           return False
-     
+
+#verifie que l'id du post existe
 def post_existe(id):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -99,6 +103,7 @@ def post_existe(id):
      else: 
           return False
 
+#verifie si l'utilisateur est abonné au sub donnée
 def est_abonne(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -110,6 +115,7 @@ def est_abonne(id,user):
      else: 
           return False
 
+#verifie si l'utilisateur participe au sub donnée
 def est_participant(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -121,6 +127,7 @@ def est_participant(id,user):
      else: 
           return False
 
+#verifie si l'utilisateur a demandé à participer au sub donnée
 def a_demande(id,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -132,6 +139,7 @@ def a_demande(id,user):
      else: 
           return False
 
+#verifie que si l'utilisateurs connecté a deja liké le commentaire
 def commentaire(id_com,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -153,6 +161,7 @@ def commentaire(id_com,user):
           db.close()
           return (True,True)
 
+#verifie que si l'utilisateurs connecté a deja liké le post
 def likepost(id_post,user):
      db = sqlite3.connect('database.db')
      cursor = db.cursor()
@@ -175,7 +184,7 @@ def likepost(id_post,user):
           return (True,True)
 
 
-
+#acceuil ou page de connexion
 @app.route('/')
 def login():
      if not session.get("id"):
@@ -183,6 +192,7 @@ def login():
      else:
           return redirect('/accueil')
 
+#Essaye de connecter avec les données rentrés
 @app.route('/connect',methods=['post'])
 def connect():
      form_data=request.form.to_dict()
@@ -208,12 +218,12 @@ def connect():
           db.close()
           return render_template('login.html',message=str('Votre mail et/ou votre mot de passe sont erronés, veuillez réessayer'))
      
-
+#la age d'enregistrement
 @app.route('/register')
 def register():
      return render_template('register.html',message=1)
 
-
+#rentre le nouvel utilisateur
 @app.route('/enregistrement',methods=['get','post'])
 def enregistre():
      if request.method == 'POST':
@@ -262,6 +272,7 @@ def accueil():
      os.path.isfile("static/img/uploads/")
      return render_template('accueil.html',data = L,comments=comments,like=like)
 
+#form de création d'un sub
 @app.route('/form')
 def form():
      if test_verif:
@@ -269,6 +280,7 @@ def form():
      else:
           return render_template('erreur.html',message="Accès refusé",description="vous n'avez pas les droits d'accès nécessaires")     
 
+#app route de parcourir
 @app.route('/parcourir')
 def parcourir():
      db='database.db'
@@ -279,6 +291,7 @@ def parcourir():
      con.close()
      return render_template('parcourir.html',data=L)
 
+#rentre le sub dans la base de donnée et renvoie vers l'acceuil
 @app.route('/post',methods=['post'])
 def post():
      if test_login():
@@ -298,7 +311,7 @@ def post():
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
-
+#lance le form de recherche
 @app.route('/search', methods=['GET', 'POST'])
 def recherche():
     search = request.form.to_dict()
@@ -306,7 +319,7 @@ def recherche():
         return search_results(search)
     return render_template('resultat.html', form=search)
 
-
+#lance l'algorithme de recherche
 @app.route('/results')
 def search_results(search):
      resultat = []
@@ -330,6 +343,7 @@ def search_results(search):
      else:
          return render_template('resultat.html', resultat=resultat)
 
+#lance et affiche le resultat de l'algorithme de recommandation
 @app.route('/recommandation')
 def recom():
      if test_login():
@@ -345,7 +359,6 @@ def recom():
                     abonnement[i]=abonnement[i][0]
                for i in range(len(abonnement)):
                     temp=recommandation(abonnement[i])
-                    print(temp)
                     for j in range(len(temp)):
                          if temp[j][0] not in abonnement:
                               if temp[j][0] in total:
@@ -364,7 +377,7 @@ def recom():
      else:
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
-
+#lance la page du sub 
 @app.route('/sub/<id>')
 def viewsub(id):
      if test_login():
@@ -765,7 +778,7 @@ def post_commentaire(id):
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
-
+#affiche les abonnements de l'utilisateur connecté
 @app.route('/mesabonnements')
 def affichageabonnements():
      db = sqlite3.connect('database.db')
@@ -779,15 +792,7 @@ def affichageabonnements():
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
-'''@app.route('/mesabonnements')
-def affichageabonnements():
-     db = sqlite3.connect('database.db')
-     cursor = db.cursor()
-     cursor.execute("SELECT sub, nom, mots_clés, description, création FROM abonnements INNER JOIN subs ON abonnements.sub=subs.numéro_projet WHERE utilisateur=?",(str(session.get("id"))))
-     L=cursor.fetchall()
-     db.close()
-     return render_template('mesabonnements.html',data=L)'''
-
+#affiche les projets créés de l'utilisateur connecté
 @app.route('/mesprojets')
 def affichageprojets():
      db = sqlite3.connect('database.db')
@@ -802,6 +807,7 @@ def affichageprojets():
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
 
+#upvote du commentaire donnée
 @app.route('/upvote/<id_com>')
 def upvote(id_com):
      db = sqlite3.connect('database.db')
@@ -833,6 +839,7 @@ def upvote(id_com):
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
+#downvote du commentaire donnée
 @app.route('/downvote/<id_com>')
 def downvote(id_com):
      db = sqlite3.connect('database.db')
@@ -864,6 +871,7 @@ def downvote(id_com):
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
+#uplike du commentaire donnée
 @app.route('/like/<id_post>')
 def uplike(id_post):
      db = sqlite3.connect('database.db')
@@ -895,6 +903,7 @@ def uplike(id_post):
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
+#downlike du commentaire donnée
 @app.route('/dislike/<id_post>')
 def downlike(id_post):
      db = sqlite3.connect('database.db')
@@ -926,7 +935,7 @@ def downlike(id_post):
           db.close()
           return render_template('/erreur.html',message="Vous n'êtes pas connecté",description='Votre session a expiré ou vous ne vous êtes pas connecté')
 
-
+#chat du sub donné
 @app.route("/sub/<numsub>/chat", methods=["GET","POST"])
 def chat(numsub):
      if test_login():

@@ -11,7 +11,7 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id',[(25)])
+@pytest.mark.parametrize('id',[(25),(12),("a"),(4),(7),(56),(23),(None),('rt')])
 
 
 def test_annuler_participation(base,id):

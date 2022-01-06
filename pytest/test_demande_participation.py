@@ -11,7 +11,7 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-@pytest.mark.parametrize('id,expect',[(1,[(1,12)]),(2,[])])
+@pytest.mark.parametrize('id,expect',[(1,[(1,12)]),(2,[]),(65,[]),(47,[]),(8,[(8,12)]),(29,[(29,12)]),(11,[(11,12)])])
 
 def test_demande_participation(base,id,expect):
     connect(base)

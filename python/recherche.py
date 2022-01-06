@@ -1,6 +1,7 @@
 import sqlite3
 
-
+#prototype du nouvel algo de recherche
+#fonctionne mais non implémenté
 def liste_occurences(mots_recherches,L):
     nb_subs = len(L)
     subs = [0]*nb_subs

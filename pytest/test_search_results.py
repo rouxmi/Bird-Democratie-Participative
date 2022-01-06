@@ -12,20 +12,22 @@ def base():
     with app.app.test_client() as test:
         yield test
 
-subs = sqlite3.connect('database.db')
-cursor = subs.cursor()
-cursor.execute("""SELECT nom,mots_clés,description,création FROM subs where numéro_projet = 28""")
-contenu=cursor.fetchall()
-print(contenu)
-date=contenu[0][3].split('-')
-resultat=[]
-Y=int(date[0])
-M=int(date[1])
-D=int(date[2])
+def contenu(id):
+    subs = sqlite3.connect('database.db')
+    cursor = subs.cursor()
+    cursor.execute("""SELECT nom,mots_clés,description,création FROM subs where numéro_projet = ?""",(str(id),))
+    contenu=cursor.fetchall()
+    print(contenu)
+    date=contenu[0][3].split('-')
+    resultat=[]
+    Y=int(date[0])
+    M=int(date[1])
+    D=int(date[2])
 
-resultat.append(contenu[0][:-1]+(str((datetime.date.today()-datetime.date(Y,M,D)).days)+' days ago',))
+    resultat.append(contenu[0][:-1]+(str((datetime.date.today()-datetime.date(Y,M,D)).days)+' days ago',))
+    return resultat
 
-@pytest.mark.parametrize('search,expect',[('orn',''),('matin',resultat)])
+@pytest.mark.parametrize('search,expect',[('orn',''),('matin',contenu(28)),('oui',''),('racine haut',contenu(16)),('surprise pneu',contenu(12))])
 
 def test_(base,search,expect):
     connect(base)

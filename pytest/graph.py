@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import numpy as np
+from scipy import stats
 
 
 
@@ -28,30 +29,74 @@ result=[[10, (0.003988742828369141, 10, 10), (0.003994464874267578, 15, 10), (0.
 160, 190), (0.22240018844604492, 170, 190), (0.22507309913635254, 180, 190), (0.23142051696777344, 190, 190), (0.2533249855041504, 200, 190), (0.3909571170806885, 300, 190), (0.5039739608764648, 400, 190), (0.7011308670043945, 500, 190), (0.8038568496704102, 600, 190), (0.9234907627105713, 700, 
 190), (1.1839838027954102, 800, 190), (1.2308018207550049, 900, 190), (1.2958621978759766, 1000, 190), (2.62892484664917, 2000, 190), (4.014399528503418, 3000, 190), (5.329074144363403, 4000, 190), (6.645633220672607, 5000, 190), (7.9697229862213135, 6000, 190), (9.109670639038086, 7000, 190), (10.618888854980469, 8000, 190), (11.583054304122925, 9000, 190), (12.84662675857544, 10000, 190)], [200, (0.016993045806884766, 10, 200), (0.02397751808166504, 15, 200), (0.030378103256225586, 20, 200), (0.03802013397216797, 25, 200), (0.04591035842895508, 30, 200), (0.05286097526550293, 35, 200), (0.05920219421386719, 40, 200), (0.06586456298828125, 45, 200), (0.0728754997253418, 50, 200), (0.08581089973449707, 60, 200), (0.09944987297058105, 70, 200), (0.11212873458862305, 80, 200), (0.1279315948486328, 90, 200), (0.14262151718139648, 100, 200), (0.15462613105773926, 110, 200), (0.21477055549621582, 120, 200), (0.1854863166809082, 130, 200), (0.2114410400390625, 140, 200), (0.21693062782287598, 150, 200), (0.2363889217376709, 160, 200), (0.2473757266998291, 170, 200), (0.2643318176269531, 180, 200), (0.3640275001525879, 190, 200), (0.31220269203186035, 200, 200), (0.4497981071472168, 300, 200), (0.5914201736450195, 400, 200), (0.7437431812286377, 500, 200), (0.9159953594207764, 600, 200), (1.093073844909668, 700, 200), (1.2327055931091309, 800, 200), (1.356416940689087, 900, 200), (1.5195679664611816, 1000, 200), (3.145599842071533, 2000, 200), (4.215976238250732, 3000, 200), (5.720732688903809, 4000, 200), (7.566304445266724, 5000, 200), (9.536230564117432, 6000, 200), (10.503938674926758, 7000, 200), (12.142556428909302, 8000, 200), (15.208858728408813, 9000, 200), (14.60494065284729, 10000, 200)]]
 
-x,y,z=[],[],[]
-for i in range(len(result)):
-    for j in range(1,len(result[i])):
-        if result[i][j][0]>20:
-            print(result[i][j][1],result[i][j][2])
-        x.append(result[i][j][0])
-        y.append(result[i][j][1])
-        z.append(result[i][j][2]*2)
+def graph3D():
+    x,y,z=[],[],[]
+    for i in range(len(result)):
+        for j in range(1,len(result[i])):
+            if result[i][j][0]>20:
+                print(result[i][j][1],result[i][j][2])
+            x.append(result[i][j][0])
+            y.append(result[i][j][1])
+            z.append(result[i][j][2]*2)
 
-print(len(x),len(y),len(z))
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-X=np.array(z)
-Y=np.array(y)
-Z=np.array(x)
+    print(len(x),len(y),len(z))
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    X=np.array(z)
+    Y=np.array(y)
+    Z=np.array(x)
 
-surf = ax.plot_trisurf(X, Y, Z, cmap=cm.coolwarm,
-                       linewidth=0, antialiased=False)
-ax.zaxis.set_major_locator(LinearLocator(10))
-ax.set_xlabel('nombre de mots par titre et mots clés')
-ax.set_ylabel('nombre de subs')
-ax.set_zlabel('temps en secondes')
-# A StrMethodFormatter is used automatically
-ax.zaxis.set_major_formatter('{x:.02f}')
-fig.colorbar(surf, shrink=0.5, aspect=5)
+    surf = ax.plot_trisurf(X, Y, Z, cmap=cm.coolwarm,
+                        linewidth=0, antialiased=False)
+    ax.zaxis.set_major_locator(LinearLocator(10))
+    ax.set_xlabel('nombre de mots par titre et mots clés')
+    ax.set_ylabel('nombre de subs')
+    ax.set_zlabel('temps en secondes')
+    # A StrMethodFormatter is used automatically
+    ax.zaxis.set_major_formatter('{x:.02f}')
+    fig.colorbar(surf, shrink=0.5, aspect=5)
 
-plt.show()
+    plt.show()
 
+def graph2D():
+    x,y,z=[],[],[]
+    for i in range(len(result)):
+        for j in range(1):
+            x.append(result[i][-1][0])
+            y.append(result[i][-1][1])
+            z.append(result[i][-1][2]*2)
+
+    print(len(x),len(y),len(z))
+    X=np.array(z)
+    Y=np.array(y)
+    Z=np.array(x)
+
+
+
+    axes = plt.axes()
+    axes.grid() # dessiner une grille pour une meilleur lisibilité du graphe
+    plt.scatter(X,Z) # X et Y sont les variables qu'on a extraite dans le paragraphe précédent
+
+
+
+    #linregress() renvoie plusieurs variables de retour. On s'interessera 
+    # particulierement au slope et intercept
+    slope, intercept, r_value, p_value, std_err = stats.linregress(X, Z)
+    def predict(x):
+        return slope * x + intercept
+    
+    fit = np.polyfit(X, np.log(Z), 1)
+    
+    def predict_2(x):
+        return np.e**fit[1]*(np.e**fit[0])**x
+
+    fit2 = np.polyfit(X, Z, 2)
+    def predict_3(x):
+        return fit2[2]+x*fit2[1]+fit2[0]*x**2
+    
+    print(fit2)
+    axes.set_xlabel('nombre de mots par titre et mots clés')
+    axes.set_ylabel('temps de calcul en secondes')
+
+    fitLine = predict_3(X)
+    plt.plot(X, fitLine, c='r')
+    plt.show()
